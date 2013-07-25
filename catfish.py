@@ -1062,7 +1062,7 @@ class catfish:
                         continue
                     try:
                         size = long(os.path.getsize(filename))
-                        modified = time.strftime(time_format, time.gmtime(os.path.getmtime(filename)))
+                        modified = time.strftime(time_format, time.localtime(os.path.getmtime(filename)))
                         show_file, is_hidden, modification_date, mime_type = result_filter.apply_filters(filename, modified)
                         
                         if self.options.thumbnails:
