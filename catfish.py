@@ -451,9 +451,10 @@ class catfish:
             , dest='file_action', help='File action: "open" or "folder"')
         parser.add_option('', '--debug', action='store_true'
             , help='Show debugging messages.')
-        parser.set_defaults(icons_large=0, thumbnails=0, time_iso=0, method='find'
-            , limit_results=0, path='~', fileman=self.open_wrapper, exact=0
-            , hidden=0, fulltext=0, file_action='open', debug=0, open_wrapper=self.open_wrapper)
+        parser.set_defaults(icons_large=0, thumbnails=0, time_iso=1, method='locate'
+            , limit_results=0, path='~/papers', fileman=self.open_wrapper, exact=0
+            , hidden=1, fulltext=0, file_action='open', debug=0
+            , open_wrapper=self.open_wrapper)
         self.options, args = parser.parse_args()
         keywords = ' '.join(args)
 
