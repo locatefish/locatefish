@@ -501,13 +501,10 @@ class catfish:
             self.checkbox_find_limit.toggled()
             self.spin_find_limit.set_value(self.options.limit_results)
         self.folder_thumbnails = os.path.expanduser('~/.thumbnails/normal/')
-        self.options.path = os.path.abspath(self.options.path)
+        self.options.path = os.path.abspath(os.path.expanduser(self.options.path))
         if not os.path.isdir(self.options.path):
-            self.options.path = os.path.dirname(self.options.path)
-        if self.options.path != os.getcwd():
-            self.button_find_folder.set_filename(os.path.expanduser(self.options.path))
-        else:
-            self.button_find_folder.set_current_folder( os.getenv("HOME") )
+            self.options.path = os.path.expanduser('~')
+        self.button_find_folder.set_current_folder(self.options.path)
         self.link_color = None
         # TODO: FIX ME, LINK COLOR
         #try:
