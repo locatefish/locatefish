@@ -551,16 +551,19 @@ class catfish:
         self.suggestions = suggestions()
 
         if self.options.icons_large or self.options.thumbnails:
-            self.treeview_files.append_column(Gtk.TreeViewColumn(_('Preview'),
-                Gtk.CellRendererPixbuf(), pixbuf=0))
-            self.treeview_files.append_column(self.new_column(_('Filename'), 1, markup=1))
+            pr = Gtk.TreeViewColumn(_('Preview'), Gtk.CellRendererPixbuf(), pixbuf=0)
+            fn = self.new_column(_('Filename'), 1, markup=0)
+            columns = [pr, fn]
         else:
-            self.treeview_files.append_column(self.new_column(_('Filename'), 1, 'icon', 1))
-            self.treeview_files.append_column(self.new_column(_('Size'), 2, 'filesize'))
-            self.treeview_files.append_column(self.new_column(_('Location'), 3, 'ellipsize'))
-            self.treeview_files.append_column(self.new_column(_('Last modified'), 4, markup=1))
-        for column in self.treeview_files.get_columns():
-			column.set_reorderable(True)
+            fn = self.new_column(_('Filename'), 1, special='icon', markup=0, ellipsize=None)
+            #fn.set_expand(True)
+            lc = self.new_column(_('Location'), 2, ellipsize=None)
+            sz = self.new_column(_('Size'), 3, special='filesize')
+            md = self.new_column(_('Last modified'), 4, markup=0)
+            columns = [fn, lc, sz, md]
+        for column in columns:
+            column.set_reorderable(True)
+            self.treeview_files.append_column(column)
 
         self.entry_find_text.set_text(keywords)
         
@@ -734,7 +737,7 @@ class catfish:
         else:
             return 1
 
-    def new_column(self, label, id, special=None, markup=0):
+    def new_column(self, label, id, special=None, markup=0, ellipsize=None):
         if special == 'icon':
             column = Gtk.TreeViewColumn(label)
             cell = Gtk.CellRendererPixbuf()
@@ -742,18 +745,22 @@ class catfish:
             column.add_attribute(cell, 'pixbuf', 0)
             cell = Gtk.CellRendererText()
             column.pack_start(cell, True)
-            column.add_attribute(cell, 'markup', id)
+            if markup:
+                column.add_attribute(cell, 'markup', id)
+            else:
+                column.add_attribute(cell, 'text', id)
         else:
             cell = Gtk.CellRendererText()
             if markup:
                 column = Gtk.TreeViewColumn(label, cell, markup=id)
             else:
                 column = Gtk.TreeViewColumn(label, cell, text=id)
-            if special == 'ellipsize':
-                column.set_min_width(120)
-                cell.set_property('ellipsize', Pango.EllipsizeMode.START)
-            elif special == 'filesize':
+            if special == 'filesize':
                 column.set_cell_data_func(cell, self.cell_data_func_filesize, id)
+        if ellipsize:
+            width, mode = ellipsize
+            column.set_min_width(width)
+            cell.set_property('ellipsize', mode)
         column.set_sort_column_id(id)
         column.set_resizable(True)
         return column
@@ -1067,7 +1074,8 @@ class catfish:
                         else:
                             icon = self.get_file_icon(filename, icon_size, mime_type)
 
-                        name = name.replace('&', '&amp;')
+                        # required to prevent display issues when markup == 1:
+                        #name = name.replace('&', '&amp;')
                         result = [filename, is_hidden, modification_date, mime_type]
                         if not self.options.icons_large and not self.options.thumbnails:
                             result.append([icon, name, size, path, modified])
