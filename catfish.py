@@ -1246,9 +1246,12 @@ class catfish:
         """When text is modified in the search terms box, change the
         icon as necessary and show suggestions."""
         self.reset_text_entry_icon()
+        # disable suggestions, slows down typing, very annoying:
+        '''
         task = self.show_suggestions(widget)
         GObject.idle_add(task.next)
-            
+        '''
+
     def on_entry_find_text_activate(self, widget):
         """Initiate the search thread."""
         if len(self.entry_find_text.get_text()) == 0:
