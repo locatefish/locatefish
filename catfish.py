@@ -286,10 +286,10 @@ class suggestions(list):
             if filename not in self and keywords.lower() == filename[:len(keywords)]:
                 result_count += 1
                 if self.show_hidden:
-                	self.append(filename)
-            	else:
-            		if not self.file_is_hidden(filename):
-            			self.append(filename)
+                    self.append(filename)
+                else:
+                    if not self.file_is_hidden(filename):
+                        self.append(filename)
             if self.__len__ == self.max_results: break
         return result_count
     
@@ -865,7 +865,9 @@ class catfish:
 
     def get_find_options(self, method, folder='~', limit=-1):
         folder = os.path.expanduser(folder)
-        method_name = [method, 'locate'][method=='slocate']
+        method_name = method
+        if method == 'slocate':
+            method_name = 'locate'
         methods = {
             'find': (method, '', '%s "' + folder + '"/ -ignore_readdir_race -noleaf',
                 '-wholename', '-iwholename', '', 1, 1, 0, 0, 0, 0),
