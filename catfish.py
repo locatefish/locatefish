@@ -84,7 +84,8 @@ def menu_position(self, menu, data=None, something_else=None):
     widget = menu.get_attach_widget()
     allocation = widget.get_allocation()
     window_pos = widget.get_window().get_position()
-    x = window_pos[0] + allocation.x - menu.get_allocated_width() + widget.get_allocated_width()
+    x = (window_pos[0] + allocation.x - menu.get_allocated_width() +
+         widget.get_allocated_width())
     y = window_pos[1] + allocation.y + allocation.height
     return (x, y, True)
 
@@ -136,7 +137,8 @@ class Filter:
             filename = fileobject
             is_hidden = self.file_is_hidden(filename)
             if isinstance(modification_date, str):
-                modification_date = datetime.datetime.strptime(modification_date, self.time_format)
+                modification_date = datetime.datetime.strptime(modification_date,
+                                                               self.time_format)
             mime_type = self.determine_mimetype(filename)
         else:
             filename = fileobject[0]
@@ -176,7 +178,8 @@ class Filter:
         return self.start_date <= datetimeobject and self.end_date >= datetimeobject
     
     def filetype_is_wanted(self, filename, mime_type):
-        if len(self.type_families) == 0 and len(self.custom_extensions) == 0 and self.custom_mime == [None, None]:
+        if (len(self.type_families) == 0 and len(self.custom_extensions) == 0
+            and self.custom_mime == [None, None]):
             return True
         if mime_type == self.custom_mime:
             return True
@@ -259,7 +262,9 @@ class suggestions(list):
                         for subject in event.get_subjects():
                             if subject.uri[:7] == 'file://':
                                 filename = split_filename(subject.uri)[1].lower()
-                                if keywords.lower() in filename and filename not in self and folder.lower() in filename:
+                                if (keywords.lower() in filename and
+                                    filename not in self and
+                                    folder.lower() in filename):
                                     result_count += 1
                                     if self.show_hidden:
                                         self.append(filename)
@@ -279,7 +284,8 @@ class suggestions(list):
         
         Return the number of found results."""
         query = "locate -i %s --existing -n 20" % os.path.join(folder, "*%s*" % keywords)
-        self.process = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        self.process = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        shell=True)
         result_count = 0
         for filepath in self.process.communicate()[0].split('\n'):
             filename = split_filename(filepath)[1].lower()
@@ -379,7 +385,8 @@ class fulltext_query:
         
     def run(self, keywords, folder, exact, hidden, limit):
         command = "find %s -name '*' -print0 | xargs -0 grep \"%s\"" % (folder, keywords)
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
     
     def status(self): return self.err or self.process.poll()
@@ -711,8 +718,10 @@ class catfish:
         radio_mimetype_custom.set_label( _("Enter extensions") )
         
         self.dialog_updatedb.set_title( _("Update Search Index") )
-        dialog_updatedb_text_primary.set_markup('<big><b>%s</b></big>' % _("Update Search Index"))
-        dialog_updatedb_text_secondary.set_label( _("To provide accurate results, the locate database needs to be refreshed.\nThis requires sudo (admin) rights.") )
+        dialog_updatedb_text_primary.set_markup('<big><b>%s</b></big>' %
+                                                _("Update Search Index"))
+        dialog_updatedb_text_secondary.set_label( _("To provide accurate results, the "
+        "locate database needs to be refreshed.\nThis requires sudo (admin) rights.") )
         self.updatedb_label_updating.set_label( _("Updating database...") )
         self.updatedb_label_done.set_label( _("Done.") )
         
@@ -930,14 +939,17 @@ class catfish:
         elif self.time_filter_week.get_active():
             now = datetime.datetime.now()
             week_ago = now - datetime.timedelta(days=7)
-            start_date = datetime.datetime(week_ago.year, week_ago.month, week_ago.day, 0, 0, 0, 0)
+            start_date = datetime.datetime(week_ago.year, week_ago.month, week_ago.day,
+                                           0, 0, 0, 0)
             end_date = now + datetime.timedelta(days=1)
-            end_date = datetime.datetime(end_date.year, end_date.month, end_date.day, 0, 0, 0, 0)
+            end_date = datetime.datetime(end_date.year, end_date.month, end_date.day,
+                                         0, 0, 0, 0)
         else:
             start_date = self.calendar_start.get_date()
             start_date = datetime.datetime(start_date[0], start_date[1]+1, start_date[2])
             end_date = self.calendar_end.get_date()
-            end_date = datetime.datetime(end_date[0], end_date[1]+1, end_date[2]) + datetime.timedelta(days=1)
+            end_date = datetime.datetime(end_date[0], end_date[1]+1,
+                                         end_date[2]) + datetime.timedelta(days=1)
         
         type_families = []
         if self.type_filter_documents.get_active():
@@ -965,7 +977,8 @@ class catfish:
                 ext = ext.replace(',', ' ')
                 custom_extensions = ext.split()
                 
-        return keywords, folder, exact, hidden, fulltext, limit, start_date, end_date, type_families, custom_mime, custom_extensions
+        return (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+                type_families, custom_mime, custom_extensions)
 
     def find(self, widget=None, method='locate', deepsearch=False):
         """Do the actual search."""
@@ -998,7 +1011,8 @@ class catfish:
             listmodel.set_sort_column_id(1, Gtk.SortType.ASCENDING)
 
         # Retrieve search parameters
-        keywords, folder, exact, hidden, fulltext, limit, start_date, end_date, type_families, custom_mime, custom_extensions = self.get_search_settings()
+        (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+         type_families, custom_mime, custom_extensions) = self.get_search_settings()
         
         if method == 'locate':
             keywords = keywords.replace('*', ' ')
@@ -1076,8 +1090,10 @@ class catfish:
                         continue
                     try:
                         size = long(os.path.getsize(filename))
-                        modified = time.strftime(time_format, time.localtime(os.path.getmtime(filename)))
-                        show_file, is_hidden, modification_date, mime_type = result_filter.apply_filters(filename, modified)
+                        modified = time.strftime(time_format,
+                                                 time.localtime(os.path.getmtime(filename)))
+                        (show_file, is_hidden, modification_date,
+                         mime_type) = result_filter.apply_filters(filename, modified)
                         
                         if self.options.thumbnails:
                             icon = self.get_thumbnail(filename, icon_size, mime_type)
@@ -1195,15 +1211,17 @@ class catfish:
         return self.get_icon_pixbuf(icon_name, icon_size)
     
     def reset_text_entry_icon(self):
+        eft = self.entry_find_text
         if self.find_in_progress:
-            self.entry_find_text.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_CANCEL)
-            self.entry_find_text.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Cancel search') )
-        elif len(self.entry_find_text.get_text()) > 0:
-            self.entry_find_text.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_CLEAR)
-            self.entry_find_text.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Clear search terms') )
+            eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_CANCEL)
+            eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Cancel search') )
+        elif len(eft.get_text()) > 0:
+            eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_CLEAR)
+            eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Clear search terms'))
         else:
-            self.entry_find_text.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_FIND)
-            self.entry_find_text.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY, _('Enter search terms and press ENTER') )
+            eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_FIND)
+            eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY,
+                                      _('Enter search terms and press ENTER'))
             
     def show_suggestions(self, widget):
         self.suggestions.stop()
@@ -1211,7 +1229,8 @@ class catfish:
             self.suggestion_pending = True
             while Gtk.events_pending(): Gtk.main_iteration()
             query = widget.get_text()
-            self.suggestions.run(query, self.button_find_folder.get_filename(), self.checkbox_find_hidden.get_active())
+            self.suggestions.run(query, self.button_find_folder.get_filename(),
+                                 self.checkbox_find_hidden.get_active())
             
             completion = self.entry_find_text.get_completion()
             listmodel = completion.get_model()
@@ -1369,11 +1388,10 @@ class catfish:
             self.updatedb_in_progress = True
             self.updatedb_button_cancel.set_sensitive(False)
             self.updatedb_button_ok.set_sensitive(False)
-            self.updatedb_process = subprocess.Popen(['gksudo', 'updatedb'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
+            self.updatedb_process = subprocess.Popen(['gksudo', 'updatedb'],
+                                                     stdout=subprocess.PIPE,
+                                                     stderr=subprocess.PIPE, shell=False)
             GObject.timeout_add(1000, updatedb_subprocess)
-
-            
-            
             
     def on_menu_about_activate(self, widget):
         """Show the About dialog."""
@@ -1525,10 +1543,11 @@ class catfish:
                 time_format = '%x %X'
             else:
                 time_format = '%Y-%m-%d %H:%M'
-            keywords, folder, exact, hidden, fulltext, limit, start_date, end_date, type_families, custom_mime, custom_extensions = self.get_search_settings()
-            result_filter = Filter(keywords, exact, hidden, fulltext, 
-                start_date, end_date, time_format, type_families, custom_mime, 
-                custom_extensions)
+            (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+             type_families, custom_mime, custom_extensions) = self.get_search_settings()
+            result_filter = Filter(keywords, exact, hidden, fulltext,
+                                   start_date, end_date, time_format, type_families,
+                                   custom_mime, custom_extensions)
             messages = []
             sort_settings = self.treeview_files.get_model().get_sort_column_id()
             listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
@@ -1539,10 +1558,12 @@ class catfish:
                 filename = filegroup[0]
                 modification_date = filegroup[2]
                 path, name = os.path.split(filename)
-                show_file, is_hidden, modification_date, mime_type = result_filter.apply_filters(filegroup, modification_date)
+                (show_file, is_hidden, modification_date,
+                 mime_type) = result_filter.apply_filters(filegroup, modification_date)
                 if show_file:
                     if not fulltext:
-                        if '*' not in self.keywords and not result_filter.string_wild_match(name):
+                        if ('*' not in self.keywords and
+                            not result_filter.string_wild_match(name)):
                             pass
                         else:
                             listmodel.append(filegroup[4])
