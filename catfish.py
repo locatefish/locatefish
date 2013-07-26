@@ -839,6 +839,7 @@ class catfish:
         return model, path
 
     def get_selected_filename(self, treeview, treeiter=None):
+        """Return folder and filename"""
         model, path = self.treeview_get_selection(treeview)
         if path == None:
             return None, None
@@ -846,9 +847,12 @@ class catfish:
             treeiter = model.get_iter(path)
         if model.get_value(treeiter, 3) == None:
             return None, None
-        if not self.options.icons_large and not self.options.thumbnails:
-            return model.get_value(treeiter, 3), model.get_value(treeiter, 1)
-        return model.get_value(treeiter, 4), model.get_value(treeiter, 3)
+        if self.options.icons_large or self.options.thumbnails:
+            # these indices might be off:
+            filename, folder = model.get_value(treeiter, 4), model.get_value(treeiter, 3)
+        else:
+            filename, folder = model.get_value(treeiter, 2), model.get_value(treeiter, 1)
+        return filename, folder
 
     def open_file(self, filename):
         """Open the file with its default app or the file manager"""
@@ -984,7 +988,7 @@ class catfish:
             listmodel = self.treeview_files.get_model()
         else:
         # Reset treeview
-            listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, long, str, str)
+            listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
             self.treeview_files.set_model(listmodel)
             self.treeview_files.columns_autosize()
             listmodel.set_sort_column_id(1, Gtk.SortType.ASCENDING)
@@ -1078,7 +1082,7 @@ class catfish:
                         #name = name.replace('&', '&amp;')
                         result = [filename, is_hidden, modification_date, mime_type]
                         if not self.options.icons_large and not self.options.thumbnails:
-                            result.append([icon, name, size, path, modified])
+                            result.append([icon, name, path, size, modified])
                             if result not in self.results:
                                 if show_file:
                                     listmodel.append(result[4])
@@ -1088,7 +1092,7 @@ class catfish:
                             if modified <> '':
                                 modified = os.linesep + modified
                             result.append([icon, '%s %s%s%s%s' % (name
-                                , self.format_size(size), os.linesep, path
+                                , path, os.linesep, self.format_size(size)
                                 , modified), None, name, path])
                             if result not in self.results:
                                 if show_file:
@@ -1521,7 +1525,7 @@ class catfish:
                 custom_extensions)
             messages = []
             sort_settings = self.treeview_files.get_model().get_sort_column_id()
-            listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, long, str, str)
+            listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
             listmodel.set_sort_column_id(sort_settings[0], sort_settings[1])
             self.treeview_files.set_model(listmodel)
             self.treeview_files.columns_autosize()
