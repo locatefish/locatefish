@@ -865,11 +865,12 @@ class catfish:
             filename, folder = model.get_value(treeiter, 4), model.get_value(treeiter, 3)
         else:
             filename, folder = model.get_value(treeiter, 2), model.get_value(treeiter, 1)
+        # if markup=1, replace '&amp;' markup with original '&':
+        #filename, folder = filename.replace('&amp;', '&'), folder.replace('&amp;', '&')
         return filename, folder
 
     def open_file(self, filename):
         """Open the file with its default app or the file manager"""
-
         if os.path.exists(filename):
             command = [self.open_wrapper, filename]
             try:
