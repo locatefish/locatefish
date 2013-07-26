@@ -1001,6 +1001,8 @@ class catfish:
         
         if method == 'locate':
             keywords = keywords.replace('*', ' ')
+            keywords = [ os.path.join(folder, '*%s*'%keyword) for keyword in keywords.split() ]
+            keywords = ' '.join(keywords) # back to a space separated string of keywords
         
         if not self.options.time_iso:
             time_format = '%x %X'
