@@ -412,7 +412,8 @@ class shell_query:
         else:
             kwstring = ' '.join([ '"%s"' % keyword for keyword in keywords.split() ])
             command += ' ' + kwstring
-        print 'query command: %r' % command
+        # print out query command:
+        print command
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
