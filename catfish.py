@@ -393,10 +393,10 @@ class shell_query:
         (binary, daemon, default, case, nocase, limit_results, wildcards
             , file_manual, path_manual, exact_manual, errors_ignore, use_regex
             ) = self.options
-        if 'locate' in binary and '*' not in keywords:
-            command = default % binary + ' --regex'
-        else:
-            command = default % binary
+        #if 'locate' in binary and '*' not in keywords:
+        #    command = default % binary + ' --regex'
+        #else:
+        command = default % binary
         if exact:
             command += ' ' + case
         else:
@@ -410,8 +410,11 @@ class shell_query:
         if file_manual:
             command += ' "*%s*"' % keywords
         else:
-            command += ' "%s"' % keywords
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            kwstring = ' '.join([ '"%s"' % keyword for keyword in keywords.split() ])
+            command += ' ' + kwstring
+        print 'query command: %r' % command
+        self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
     def status(self): return self.err or self.process.poll()
 
@@ -881,7 +884,7 @@ class catfish:
             'find': (method, '', '%s "' + folder + '"/ -ignore_readdir_race -noleaf',
                 '-wholename', '-iwholename', '', 1, 1, 0, 0, 0, 0),
             'locate': (method, '', '%s', '', '-i', '',
-                1, 0, 1, 0, 0, 1),
+                1, 0, 1, 0, 0, 0), # don't use regex
             'tracker': ('tracker-search', 'trackerd', '%s', '', '', '-l %i' % limit,
                 0, 0, 1, 1, 0, 0),
             'doodle': (method, '', '%s', '', '-i', '',
