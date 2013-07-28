@@ -73,6 +73,15 @@ zh_TW: Walter Cheuk &lt;wwycheuk@gmail.com&gt;
     <property name="can_focus">False</property>
     <signal name="hide" handler="on_application_menu_hide" swapped="no"/>
     <child>
+      <object class="GtkCheckMenuItem" id="checkbox_find_intersect">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label" translatable="yes">Intersect terms</property>
+        <property name="use_underline">True</property>
+        <signal name="toggled" handler="on_checkbox_find_intersect_toggled" swapped="no"/>
+      </object>
+    </child>
+    <child>
       <object class="GtkCheckMenuItem" id="checkbox_find_exact">
         <property name="visible">True</property>
         <property name="can_focus">False</property>

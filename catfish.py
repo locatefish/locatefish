@@ -90,11 +90,16 @@ def menu_position(self, menu, data=None, something_else=None):
     return (x, y, True)
 
 
+class IntersectionError(ValueError):
+    pass
+    
+
 class Filter:
-    def __init__(self, exact_match, show_hidden, start_date, end_date,
+    def __init__(self, intersect, exact, hidden, start_date, end_date,
                  time_format, type_families, custom_mime, custom_extensions):
-        self.exact_match = bool(exact_match)
-        self.show_hidden = bool(show_hidden)
+        self.intersect = intersect # intersect search terms
+        self.exact = exact # case sensitive
+        self.hidden = hidden # show hidden files
         #self.fulltext = bool(fulltext)
         self.start_date = start_date
         self.end_date = end_date
@@ -211,7 +216,7 @@ class shell_query:
         self.method = method
         self.method_args = method_args
 
-    def run(self, keywords, folder, exact, hidden, limit):
+    def run(self, keywords, folder, intersect, exact, hidden, limit):
         """Run the query subprocess. keywords is a list of (multi)words"""
         case, nocase = self.method_args
         # build up shell command:
@@ -261,6 +266,8 @@ class catfish:
                           help='Use WRAPPER to open files')
         parser.add_option('', '--method', help='Use METHOD to search')
         parser.add_option('', '--exact', action='store_true', help='Perform exact match')
+        parser.add_option('', '--intersect', action='store_true',
+                          help='Intersect results from search terms')
         parser.add_option('', '--hidden', action='store_true', help='Include hidden files')
         #parser.add_option('', '--fulltext', action='store_true',
         #                   help='Perform fulltext search')
@@ -269,8 +276,9 @@ class catfish:
         parser.add_option('', '--debug', action='store_true', help='Show debugging messages.')
         parser.set_defaults(icons_large=False, thumbnails=False, time_iso=True,
                             method='locate', limit_results=False, path='~/papers',
-                            fileman=self.open_wrapper, exact=False, hidden=True,
-                            file_action='open', debug=False, open_wrapper=self.open_wrapper)
+                            fileman=self.open_wrapper, intersect=True, exact=False,
+                            hidden=True, file_action='open', debug=False,
+                            open_wrapper=self.open_wrapper)
         self.options, args = parser.parse_args()
         keywords = ' '.join(args)
 
@@ -309,6 +317,7 @@ class catfish:
         # Set some initial values
         self.icon_cache = {}
         self.icon_theme = Gtk.IconTheme.get_default()
+        self.checkbox_find_intersect.set_active(self.options.intersect)
         self.checkbox_find_exact.set_active(self.options.exact)
         self.checkbox_find_hidden.set_active(self.options.hidden)
         #self.checkbox_find_fulltext.set_active(self.options.fulltext)
@@ -424,6 +433,7 @@ class catfish:
         # Application Menu
         self.menu_button = self.builder.get_object('menu_button')
         self.application_menu = self.builder.get_object('application_menu')
+        self.checkbox_find_intersect = self.builder.get_object('checkbox_find_intersect')
         self.checkbox_find_exact = self.builder.get_object('checkbox_find_exact')
         self.checkbox_find_hidden = self.builder.get_object('checkbox_find_hidden')
         #self.checkbox_find_fulltext = self.builder.get_object('checkbox_find_fulltext')
@@ -495,6 +505,7 @@ class catfish:
         #self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
 
         self.checkbox_find_exact.set_label( _("Exact match") )
+        self.checkbox_find_intersect.set_label( _("Intersect terms") )
         self.checkbox_find_hidden.set_label( _("Hidden files") )
         #self.checkbox_find_fulltext.set_label( _("Fulltext search") )
         self.checkbox_advanced.set_label( _("Advanced Filtering") )
@@ -718,6 +729,7 @@ class catfish:
     def get_search_settings(self):
         keywords = self.entry_find_text.get_text()
         folder = self.button_find_folder.get_filename()
+        intersect = self.checkbox_find_intersect.get_active()
         exact = self.checkbox_find_exact.get_active()
         hidden = self.checkbox_find_hidden.get_active()
         #fulltext = self.checkbox_find_fulltext.get_active()
@@ -767,7 +779,7 @@ class catfish:
                 ext = ext.replace(',', ' ')
                 custom_extensions = ext.split()
 
-        return (keywords, folder, exact, hidden, limit, start_date, end_date,
+        return (keywords, folder, intersect, exact, hidden, limit, start_date, end_date,
                 type_families, custom_mime, custom_extensions)
 
     def find(self, widget=None, method='locate'):
@@ -801,7 +813,7 @@ class catfish:
         listmodel.set_sort_column_id(1, Gtk.SortType.ASCENDING)
 
         # Retrieve search parameters
-        (keywords, folder, exact, hidden, limit, start_date, end_date,
+        (keywords, folder, intersect, exact, hidden, limit, start_date, end_date,
          type_families, custom_mime, custom_extensions) = self.get_search_settings()
 
         if method == 'locate':
@@ -819,7 +831,7 @@ class catfish:
         else:
             time_format = '%Y-%m-%d %H:%M'
 
-        result_filter = Filter(exact, hidden, start_date, end_date, time_format,
+        result_filter = Filter(intersect, exact, hidden, start_date, end_date, time_format,
                                type_families, custom_mime, custom_extensions)
 
         if keywords != '':
@@ -840,8 +852,10 @@ class catfish:
             #    query = fulltext_query(options)
             #else:
             query = shell_query(method, method_args)
-            for filename in query.run(keywords, folder, exact, hidden, limit):
-                if self.abort_find or len(listmodel) == limit: break
+            filenames = list(query.run(keywords, folder, intersect, exact, hidden, limit))
+            for filename in filenames:
+                if self.abort_find or len(listmodel) == limit:
+                    break
                 filename = filename.split(os.linesep)[0]
                 # Convert uris to filenames
                 if filename[:7] == 'file://':
@@ -851,46 +865,57 @@ class catfish:
                     filename = filename[10:]
                     filename = filename[:filename.index('?')]
                 path, name = os.path.split(filename)
-                try:
-                    size = long(os.path.getsize(filename))
-                    modified = time.strftime(time_format,
-                                             time.localtime(os.path.getmtime(filename)))
-                    (show_file, is_hidden, modification_date,
-                     mime_type) = result_filter.apply_filters(filename, modified)
+                if intersect: # ensure each name contains all keywords
+                    try:
+                        for keyword in keywords:
+                            testname = name
+                            if not exact:
+                                keyword = keyword.lower()
+                                testname = name.lower()
+                            if keyword not in testname:
+                                raise IntersectionError
+                    except IntersectionError:
+                        continue # skip this filename
+                #try:
+                size = os.path.getsize(filename)
+                modified = time.strftime(time_format,
+                                         time.localtime(os.path.getmtime(filename)))
+                (show_file, is_hidden, modification_date,
+                 mime_type) = result_filter.apply_filters(filename, modified)
 
-                    if self.options.thumbnails:
-                        icon = self.get_thumbnail(filename, icon_size, mime_type)
-                    else:
-                        icon = self.get_file_icon(filename, icon_size, mime_type)
+                if self.options.thumbnails:
+                    icon = self.get_thumbnail(filename, icon_size, mime_type)
+                else:
+                    icon = self.get_file_icon(filename, icon_size, mime_type)
 
-                    # required to prevent display issues when markup == 1:
-                    #name = name.replace('&', '&amp;')
-                    result = [filename, is_hidden, modification_date, mime_type]
-                    if not self.options.icons_large and not self.options.thumbnails:
-                        result.append([icon, name, path, size, modified])
-                        if result not in self.results:
-                            if show_file:
-                                listmodel.append(result[4])
-                            self.results.append(result)
-                    else:
-                        path = path.replace('&', '&amp;')
-                        if modified <> '':
-                            modified = os.linesep + modified
-                        resultstr = '%s %s%s%s%s' % (name, path, os.linesep,
-                                                     self.format_size(size) , modified)
-                        result.append([icon, resultstr, None, name, path])
-                        if result not in self.results:
-                            if show_file:
-                                listmodel.append(result[4])
-                            self.results.append(result)
-                except Exception, msg:
-                    if self.options.debug: print 'Debug:', msg
-                    pass # Ignore inaccessible files
+                # required to prevent display issues when markup == 1:
+                #name = name.replace('&', '&amp;')
+                result = [filename, is_hidden, modification_date, mime_type]
+                if not self.options.icons_large and not self.options.thumbnails:
+                    result.append([icon, name, path, size, modified])
+                    if result not in self.results:
+                        if show_file:
+                            listmodel.append(result[4])
+                        self.results.append(result)
+                else:
+                    path = path.replace('&', '&amp;')
+                    if modified <> '':
+                        modified = os.linesep + modified
+                    resultstr = '%s %s%s%s%s' % (name, path, os.linesep,
+                                                 self.format_size(size) , modified)
+                    result.append([icon, resultstr, None, name, path])
+                    if result not in self.results:
+                        if show_file:
+                            listmodel.append(result[4])
+                        self.results.append(result)
+                #except Exception, msg:
+                #    if self.options.debug: print 'Debug:', msg
+                #    pass # Ignore inaccessible files
                 yield True
             self.treeview_files.set_model(listmodel)
             if len(listmodel) == 0:
                 #self.clear_deepsearch = True
-                if errors_ignore and query.status():
+                if query.status():
                     status_icon = Gtk.STOCK_CANCEL
                     messages.append([_('Fatal error, search was aborted.'), None])
                 else:
@@ -1077,6 +1102,9 @@ class catfish:
         """When the application menu is unfocused (menu item activated
         or clicked elsewhere), unclick the button."""
         self.menu_button.set_active(False)
+
+    def on_checkbox_find_intersect_toggled(self, widget):
+        self.on_filter_changed(widget)
 
     def on_checkbox_find_exact_toggled(self, widget):
         self.on_filter_changed(widget)
@@ -1300,9 +1328,9 @@ class catfish:
                 time_format = '%x %X'
             else:
                 time_format = '%Y-%m-%d %H:%M'
-            (keywords, folder, exact, hidden, limit, start_date, end_date,
+            (keywords, folder, intersect, exact, hidden, limit, start_date, end_date,
              type_families, custom_mime, custom_extensions) = self.get_search_settings()
-            result_filter = Filter(exact, hidden, start_date, end_date,
+            result_filter = Filter(intersect, exact, hidden, start_date, end_date,
                                    time_format, type_families, custom_mime, custom_extensions)
             messages = []
             sort_settings = self.treeview_files.get_model().get_sort_column_id()
