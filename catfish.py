@@ -392,19 +392,22 @@ class fulltext_query:
 '''
 
 class shell_query:
-    def __init__(self, options):
+    def __init__(self, method, method_args):
         self.err = ''
-        self.options = options
+        self.method = method
+        self.method_args = method_args
 
     def run(self, keywords, folder, exact, hidden, limit):
-        binary, daemon, default, case, nocase, limit_results, errors_ignore = self.options
-        command = default % binary
+        case, nocase = self.method_args
+        # build up shell command:
+        command = self.method
         if exact:
             command += ' ' + case
         else:
             command += ' ' + nocase
-        if limit > 0:
-            command += ' ' + limit_results
+        # disable limit for now:
+        #if limit > 0:
+        #    command += ' ' + limit_results
         #if file_manual:
         #    command += ' "*%s*"' % keywords.strip('"')
         #else:
@@ -878,7 +881,7 @@ class catfish:
             self.get_error_dialog(('Error: Could not access the file %s.'
              % filename), self.window_search)
 
-    def get_find_options(self, method, limit=-1):
+    def get_method_args(self, method, limit=-1):
         if method == 'locate':
             case = ''
             nocase = '-i'
@@ -1017,7 +1020,7 @@ class catfish:
             # Generate search command
             self.keywords = keywords
             self.folder = folder
-            case, nocase = self.get_find_options(method)
+            method_args = self.get_method_args(method)
 
             # Set display options
             if not self.options.icons_large and not self.options.thumbnails:
@@ -1030,7 +1033,7 @@ class catfish:
             #if fulltext:
             #    query = fulltext_query(options)
             #else:
-            query = shell_query(options)
+            query = shell_query(method, method_args)
             for filename in query.run(keywords, folder, exact, hidden, limit):
                 if self.abort_find or len(listmodel) == limit: break
                 filename = filename.split(os.linesep)[0]
@@ -1271,8 +1274,8 @@ class catfish:
 
     def on_checkbox_find_exact_toggled(self, widget):
         self.on_filter_changed(widget)
-        if not self.find_powered:
-            self.on_button_search_find_clicked(widget)
+        #if not self.find_powered:
+        #    self.on_button_search_find_clicked(widget)
 
     def on_checkbox_advanced_toggled(self, widget):
         """When the Advanced Filters toggle is activated, show/hide the
