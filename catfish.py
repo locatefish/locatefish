@@ -375,7 +375,6 @@ class catfish:
         self.find_in_progress = False
         self.results = []
 
-        #self.clear_deepsearch = False
         self.updatedb_done = False
 
         # This variable shows that find was used for a set of results.
@@ -406,8 +405,6 @@ class catfish:
         self.box_main_controls = self.builder.get_object('box_main_controls')
 
         self.box_infobar = self.builder.get_object('box_infobar')
-        #self.button_deepsearch = self.builder.get_object('button_search_find')
-        #self.label_deepsearch = self.builder.get_object('label_search_find')
 
         # Application Menu
         self.menu_button = self.builder.get_object('menu_button')
@@ -479,9 +476,6 @@ class catfish:
 
         # Localized strings
         self.entry_find_text.set_placeholder_text( _("Search terms") )
-
-        #self.button_deepsearch.set_label( _("Deep Search") )
-        #self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
 
         self.checkbox_find_intersect.set_label( _("Intersect terms") )
         self.checkbox_find_exact.set_label( _("Match case") )
@@ -763,28 +757,16 @@ class catfish:
 
     def find(self, widget=None, method='locate'):
         """Do the actual search."""
-        #if self.checkbox_find_fulltext.get_active():
-        #    method = 'find'
-        #if self.clear_deepsearch:
-        #    deepsearch=False
-        #if method == 'find':
-        #    self.find_powered = True
-        #else:
-        #    self.find_powered = False
         self.box_infobar.hide()
         self.spinner.show()
         self.find_in_progress = True
         self.reset_text_entry_icon()
-        #if not deepsearch:
         self.results = []
         self.window_search.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.WATCH))
         self.window_search.set_title(_('Searching for "%s"') % self.entry_find_text.get_text())
         self.statusbar.push(self.statusbar.get_context_id('results'), _('Searching...'))
         while Gtk.events_pending(): Gtk.main_iteration()
 
-        #if deepsearch:
-        #    listmodel = self.treeview_files.get_model()
-        #else:
         # Reset treeview
         listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
         self.treeview_files.set_model(listmodel)
@@ -893,7 +875,6 @@ class catfish:
                 yield True
             self.treeview_files.set_model(listmodel)
             if len(listmodel) == 0:
-                #self.clear_deepsearch = True
                 if query.status():
                     status_icon = Gtk.STOCK_CANCEL
                     messages.append([_('Fatal error, search was aborted.'), None])
@@ -902,13 +883,11 @@ class catfish:
                     messages.append([_('No files were found.'), None])
                 status = _('No files found.')
             else:
-                #self.clear_deepsearch = False
                 status = _('%s files found.') % str(len(listmodel))
             for message, action in messages:
                 icon = [None, self.get_icon_pixbuf(status_icon)][message == messages[0][0]]
                 listmodel.append([icon, message, None, None, action])
             self.statusbar.push(self.statusbar.get_context_id('results'), status)
-        #if not deepsearch:
         self.treeview_files.set_model(listmodel)
         listmodel.set_sort_func(4, self.compare_dates, None)
 
@@ -1301,12 +1280,10 @@ class catfish:
                 if show_file:
                     listmodel.append(filegroup[4])
             if len(listmodel) == 0:
-                #self.clear_deepsearch = True
                 status_icon = Gtk.STOCK_INFO
                 messages.append([_('No files were found.'), None])
                 status = _('No files found.')
             else:
-                #self.clear_deepsearch = False
                 status = _('%s files found.') % str(len(listmodel))
             for message, action in messages:
                 icon = [None, self.get_icon_pixbuf(status_icon)][message == messages[0][0]]
@@ -1317,20 +1294,7 @@ class catfish:
 
             self.window_search.get_window().set_cursor(None)
             self.find_in_progress = False
-    '''
-    # Deep Search Info/Status bar
-    def on_button_search_find_clicked(self, widget):
-        """When the deep search button is pressed, perform an additional
-        search using the 'find' command."""
-        self.box_infobar.hide()
 
-        if not self.find_in_progress:
-            self.abort_find = 0
-            task = self.find(method='find', deepsearch=True)
-            GObject.idle_add(task.next)
-        else:
-            self.abort_find = 1
-    '''
 
 catfish()
 Gtk.main()
