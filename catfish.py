@@ -529,26 +529,26 @@ class catfish:
         completion.set_text_column(0)
 
         # Retrieve available search methods
-        methods = ['find', 'locate', 'slocate', 'tracker', 'doodle']
+        methods = ['locate']#['find', 'locate', 'slocate', 'tracker', 'doodle']
+        '''
         # DBus allows us to have two more methods
         if 'dbus' in globals():
             for method in ('strigi', 'pinot'):
                 methods.append(method)
+        '''
         bin_dirs = os.environ.get('PATH', '/usr/bin').split(os.pathsep)
         listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str)
         method_default = -1
         icon = self.get_icon_pixbuf(Gtk.STOCK_EXECUTE)
-        for method_name in methods:
-            method_binary = self.get_find_options(method_name)[0]
+        for method in methods:
             for path in bin_dirs:
-                if os.path.exists(os.path.join(path, method_binary)):
-                    listmodel.append([icon, method_name])
-                    if self.options.method == method_name:
+                if os.path.exists(os.path.join(path, method)):
+                    listmodel.append([icon, method])
+                    if self.options.method == method:
                         method_default = len(listmodel) - 1
                     break
         if method_default < 0:
-            print 'Warning:', ('Method "%s" is not available.' %
-             self.options.method)
+            print 'Warning: Method "%s" is not available' % self.options.method
             method_default = 0
 
         self.suggestions = suggestions()
@@ -878,29 +878,13 @@ class catfish:
             self.get_error_dialog(('Error: Could not access the file %s.'
              % filename), self.window_search)
 
-    def get_find_options(self, method, folder='~', limit=-1):
-        folder = os.path.expanduser(folder)
-        method_name = method
-        if method == 'slocate':
-            method_name = 'locate'
-        methods = {
-            'find': (method, '', '%s "' + folder + '"/ -ignore_readdir_race -noleaf',
-                '-wholename', '-iwholename', '', 1, 1, 0, 0, 0, 0),
-            'locate': (method, '', '%s', '', '-i', '',
-                1, 0, 1, 0, 0, 0), # don't use regex
-            'tracker': ('tracker-search', 'trackerd', '%s', '', '', '-l %i' % limit,
-                0, 0, 1, 1, 0, 0),
-            'doodle': (method, '', '%s', '', '-i', '',
-                0, 0, 0, 0, 1, 0),
-            'strigi': ('strigidaemon', 'strigidaemon', 'dbus://%s', '', '', '',
-                1, 0, 1, 1, 0, 0),
-            'pinot': ('pinot', 'pinot-dbus-daemon', 'dbus://%s', '', '', '',
-                1, 0, 1, 1, 0, 0)
-            }
-        try:
-            return methods[method_name]
-        except Exception:
-            return method, '', '%s', '', '', '', 0, 0, 0, 0, 0, 0
+    def get_find_options(self, method, limit=-1):
+        if method == 'locate':
+            case = ''
+            nocase = '-i'
+        else:
+            raise ValueError('unknown method %r' % method)
+        return case, nocase
 
     def load_mimetypes(self):
         mimetypes.init()
