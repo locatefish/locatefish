@@ -7,8 +7,13 @@ changes:
 * change the column order
 * increase window size
 * speed up search by disabling word suggestions
-* speed up search by limiting "locate" command to currently selected folder
+* disable regexps to allow limiting "locate" command to selected folder
+* speed up search by limiting "locate" command to selected folder
 * use ISO time format, and show local time instead of UTC
+
+In testing, I'm only really interested in how it performs while using "locate". I like to
+think of this as just a GUI for "locate". I may or may not have broken any or all of the other
+search methods.
 
 Martin Spacek <git@mspacek.mm.st>
 
