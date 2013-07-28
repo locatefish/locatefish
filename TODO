@@ -1,7 +1,6 @@
 TODO:
- . fix popup menu not being shown on first click
- . show text excerpts and meta information
- . remember last chosen search method and fulltext state
- . drag'n drop of filenames
- . optional plain command line mode
- . customizable search methods
+    * remove all methods other than locate
+    * remove suggestions
+    * rename "exact" to "case sensitive" (for now, exact still passes -i to locate)
+    * drag and drop of filenames
+    * fix popup menu not being shown on first click
