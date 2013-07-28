@@ -399,9 +399,8 @@ class shell_query:
         self.options = options
 
     def run(self, keywords, folder, exact, hidden, limit):
-        (binary, daemon, default, case, nocase, limit_results, wildcards
-            , file_manual, path_manual, exact_manual, errors_ignore, use_regex
-            ) = self.options
+        (binary, daemon, default, case, nocase, limit_results, wildcards, file_manual,
+         path_manual, exact_manual, errors_ignore, use_regex) = self.options
         #if 'locate' in binary and '*' not in keywords:
         #    command = default % binary + ' --regex'
         #else:
@@ -428,10 +427,12 @@ class shell_query:
         return self.process.stdout
     def status(self): return self.err or self.process.poll()
 
+
 class generic_query:
     def __init__(self): return
     def run(self, keywords, folder, exact, hidden, limit): return []
     def status(self): return 1
+
 
 class catfish:
     def __init__(self):
@@ -1036,8 +1037,8 @@ class catfish:
             self.keywords = keywords
             self.folder = folder
             options = self.get_find_options(method, folder, limit)
-            (a, daemon, default, a, a, a, wildcards, file_manual, path_manual
-                , exact_manual, errors_ignore, use_regex) = options
+            (a, daemon, default, a, a, a, wildcards, file_manual, path_manual,
+             exact_manual, errors_ignore, use_regex) = options
 
             # Set display options
             if not self.options.icons_large and not self.options.thumbnails:
