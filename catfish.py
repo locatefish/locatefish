@@ -27,19 +27,6 @@ except ImportError, msg:
     print 'Error: The required module %s is missing.' % str(msg).split()[-1]
     sys.exit(1)
 
-try:
-    import dbus
-except ImportError, msg:
-    print 'Warning: The optional module %s is missing.' % str(msg).split()[-1]
-
-try:
-    from zeitgeist.client import ZeitgeistDBusInterface
-    from zeitgeist.datamodel import Event, TimeRange
-    from zeitgeist import datamodel
-    iface = ZeitgeistDBusInterface()
-except ImportError, msg:
-    print 'Warning: The optional module %s is missing.' % str(msg).split()[-1]
-
 app_name = 'catfish'
 app_version = '0.4.0.3'
 
@@ -352,12 +339,7 @@ class catfish:
 
         # Retrieve available search methods
         methods = ['locate']#['find', 'locate', 'slocate', 'tracker', 'doodle']
-        '''
-        # DBus allows us to have two more methods
-        if 'dbus' in globals():
-            for method in ('strigi', 'pinot'):
-                methods.append(method)
-        '''
+
         bin_dirs = os.environ.get('PATH', '/usr/bin').split(os.pathsep)
         listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str)
         method_default = -1
@@ -372,8 +354,6 @@ class catfish:
         if method_default < 0:
             print 'Warning: Method "%s" is not available' % self.options.method
             method_default = 0
-
-        #self.suggestions = suggestions()
 
         if self.options.icons_large or self.options.thumbnails:
             pr = Gtk.TreeViewColumn(_('Preview'), Gtk.CellRendererPixbuf(), pixbuf=0)
@@ -395,7 +375,6 @@ class catfish:
         self.find_in_progress = False
         self.results = []
 
-        self.suggestion_pending = False
         #self.clear_deepsearch = False
         self.updatedb_done = False
 
@@ -1004,27 +983,7 @@ class catfish:
             eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_FIND)
             eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY,
                                       _('Enter search terms and press ENTER'))
-    '''
-    def show_suggestions(self, widget):
-        self.suggestions.stop()
-        if not self.suggestion_pending:
-            self.suggestion_pending = True
-            while Gtk.events_pending(): Gtk.main_iteration()
-            query = widget.get_text()
-            self.suggestions.run(query, self.button_find_folder.get_filename(),
-                                 self.checkbox_find_hidden.get_active())
 
-            completion = self.entry_find_text.get_completion()
-            listmodel = completion.get_model()
-            listmodel.clear()
-            try:
-                for keyword in self.suggestions:
-                    listmodel.append([keyword])
-            except TypeError:
-                pass
-            self.suggestion_pending = False
-            yield False
-    '''
     def disable_filters(self):
         self.time_filter_any.set_active(True)
         for checkbox in self.box_type_filter.get_children():
@@ -1060,13 +1019,8 @@ class catfish:
     # Keyword/Search Terms entry
     def on_entry_find_text_changed(self, widget):
         """When text is modified in the search terms box, change the
-        icon as necessary and show suggestions."""
+        icon as necessary"""
         self.reset_text_entry_icon()
-        # disable suggestions, slows down typing, very annoying:
-        '''
-        task = self.show_suggestions(widget)
-        GObject.idle_add(task.next)
-        '''
 
     def on_entry_find_text_activate(self, widget):
         """Initiate the search thread."""
