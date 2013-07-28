@@ -423,12 +423,6 @@ class shell_query:
         return self.err or self.process.poll()
 
 
-class generic_query:
-    def __init__(self): return
-    def run(self, keywords, folder, exact, hidden, limit): return []
-    def status(self): return 1
-
-
 class catfish:
     def __init__(self):
         """Create the main window."""
@@ -1070,9 +1064,9 @@ class catfish:
                         path = path.replace('&', '&amp;')
                         if modified <> '':
                             modified = os.linesep + modified
-                        result.append([icon, '%s %s%s%s%s' % (name
-                            , path, os.linesep, self.format_size(size)
-                            , modified), None, name, path])
+                        resultstr = '%s %s%s%s%s' % (name, path, os.linesep,
+                                                     self.format_size(size) , modified)
+                        result.append([icon, resultstr, None, name, path])
                         if result not in self.results:
                             if show_file:
                                 listmodel.append(result[4])
