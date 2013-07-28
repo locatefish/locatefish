@@ -91,9 +91,8 @@ def menu_position(self, menu, data=None, something_else=None):
 
 
 class Filter:
-    def __init__(self, keywords, exact_match, show_hidden, start_date, end_date,
+    def __init__(self, exact_match, show_hidden, start_date, end_date,
                  time_format, type_families, custom_mime, custom_extensions):
-        self.keywords = keywords
         self.exact_match = bool(exact_match)
         self.show_hidden = bool(show_hidden)
         #self.fulltext = bool(fulltext)
@@ -150,7 +149,7 @@ class Filter:
             show_file = False
         if not self.filetype_is_wanted(filename, mime_type[1]):
             show_file = False
-        if not self.show_hidden and is_hidden and self.keywords[0] != '.':
+        if not self.show_hidden and is_hidden:
             show_file = False
         return show_file, is_hidden, modification_date, mime_type
 
@@ -204,18 +203,6 @@ class Filter:
             file_type.append(mime.media)
         file_type.append([mime.media, mime.subtype])
         return file_type
-
-    def string_wild_match(self, string):
-        if self.exact_match:
-            return self.keywords in string
-        else:
-            keyword = self.keywords.lower()
-            string = string.lower()
-            keywords = keyword.split()
-            for key in keywords:
-                if key not in string:
-                    return False
-            return True
 
 
 class suggestions(list):
@@ -1007,7 +994,7 @@ class catfish:
         else:
             time_format = '%Y-%m-%d %H:%M'
 
-        result_filter = Filter(keywords, exact, hidden, start_date, end_date, time_format,
+        result_filter = Filter(exact, hidden, start_date, end_date, time_format,
                                type_families, custom_mime, custom_extensions)
 
         if keywords != '':
@@ -1490,7 +1477,7 @@ class catfish:
                 time_format = '%Y-%m-%d %H:%M'
             (keywords, folder, exact, hidden, limit, start_date, end_date,
              type_families, custom_mime, custom_extensions) = self.get_search_settings()
-            result_filter = Filter(keywords, exact, hidden, start_date, end_date,
+            result_filter = Filter(exact, hidden, start_date, end_date,
                                    time_format, type_families, custom_mime, custom_extensions)
             messages = []
             sort_settings = self.treeview_files.get_model().get_sort_column_id()
