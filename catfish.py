@@ -16,13 +16,13 @@ try:
 
     from os.path import split as split_filename
     from shutil import copy2
-    
+
     import xdg.Mime
 
     import locale, gettext
     from gi.repository import GObject, Gtk, Gdk, GdkPixbuf, Pango
     from gi._glib import GError
-    
+
 except ImportError, msg:
     print 'Error: The required module %s is missing.' % str(msg).split()[-1]
     sys.exit(1)
@@ -31,7 +31,7 @@ try:
     import dbus
 except ImportError, msg:
     print 'Warning: The optional module %s is missing.' % str(msg).split()[-1]
-    
+
 try:
     from zeitgeist.client import ZeitgeistDBusInterface
     from zeitgeist.datamodel import Event, TimeRange
@@ -59,7 +59,7 @@ def string_regex(string):
             p = perm.next()
     except StopIteration:
         pass
-    
+
     first_string = True
     for permutation in perms:
         strperm = ""
@@ -89,11 +89,12 @@ def menu_position(self, menu, data=None, something_else=None):
     y = window_pos[1] + allocation.y + allocation.height
     return (x, y, True)
 
+
 class Filter:
-    def __init__(self, keywords, exact_match, show_hidden, fulltext, 
-        start_date, end_date, time_format, type_families, custom_mime, 
+    def __init__(self, keywords, exact_match, show_hidden, fulltext,
+        start_date, end_date, time_format, type_families, custom_mime,
         custom_extensions):
-        
+
         self.keywords = keywords
         self.exact_match = bool(exact_match)
         self.show_hidden = bool(show_hidden)
@@ -109,28 +110,28 @@ class Filter:
                 self.custom_extensions.append('.' + ext)
             else:
                 self.custom_extensions.append(ext)
-        self.mimetype_overrides = {'.abw': 'text', '.ai': 'text', 
+        self.mimetype_overrides = {'.abw': 'text', '.ai': 'text',
         '.cdy': 'video', '.chrt': 'text', '.doc':'text', '.docm':'text',
-        '.docx':'text', '.dot':'text', '.dotm':'text', '.dotx':'text', 
-        '.eps':'text', '.gnumeric':'text', '.kil':'text', '.kpr':'text', 
-        '.kpt':'text', '.ksp':'text', '.kwd':'text', '.kwt':'text', 
-        '.latex':'text', '.mdb':'text', '.mm':'text', '.nb':'text', 
-        '.nbp':'text', '.odb':'text', '.odc':'text', '.odf':'text', 
-        '.odg':'image', '.odi':'image', '.odm':'text', '.odp':'text', 
-        '.ods':'text', '.odt':'text', '.otg':'text', '.oth':'text', 
-        '.odp':'text', '.ots':'text', '.ott':'text', '.pdf': 'text', 
-        '.php':'text', '.pht':'text', '.phtml':'text', '.potm':'text', 
-        '.potx':'text', '.ppa':'text', '.ppam':'text', '.pps':'text', 
-        '.ppsm':'text', '.ppsx':'text', '.ppt':'text', '.pptm':'text', 
-        '.pptx':'text', '.ps':'text', '.pwz':'text', '.rtf':'text', 
-        '.sda':'text', '.sdc':'text', '.sdd':'text', '.sds':'text', 
-        '.sdw':'text', '.stc':'text', '.std':'text', '.sti':'text', 
-        '.stw':'text', '.sxc':'text', '.sxd':'text', '.sxg':'text', 
-        '.sxi':'text', '.sxm':'text', '.sxw':'text', '.wiz':'text', 
-        '.wp5':'text', '.wpd':'text', '.xlam':'text', '.xlb':'text', 
-        '.xls':'text', '.xlsb':'text', '.xlsm':'text', '.xlsx':'text', 
+        '.docx':'text', '.dot':'text', '.dotm':'text', '.dotx':'text',
+        '.eps':'text', '.gnumeric':'text', '.kil':'text', '.kpr':'text',
+        '.kpt':'text', '.ksp':'text', '.kwd':'text', '.kwt':'text',
+        '.latex':'text', '.mdb':'text', '.mm':'text', '.nb':'text',
+        '.nbp':'text', '.odb':'text', '.odc':'text', '.odf':'text',
+        '.odg':'image', '.odi':'image', '.odm':'text', '.odp':'text',
+        '.ods':'text', '.odt':'text', '.otg':'text', '.oth':'text',
+        '.odp':'text', '.ots':'text', '.ott':'text', '.pdf': 'text',
+        '.php':'text', '.pht':'text', '.phtml':'text', '.potm':'text',
+        '.potx':'text', '.ppa':'text', '.ppam':'text', '.pps':'text',
+        '.ppsm':'text', '.ppsx':'text', '.ppt':'text', '.pptm':'text',
+        '.pptx':'text', '.ps':'text', '.pwz':'text', '.rtf':'text',
+        '.sda':'text', '.sdc':'text', '.sdd':'text', '.sds':'text',
+        '.sdw':'text', '.stc':'text', '.std':'text', '.sti':'text',
+        '.stw':'text', '.sxc':'text', '.sxd':'text', '.sxg':'text',
+        '.sxi':'text', '.sxm':'text', '.sxw':'text', '.wiz':'text',
+        '.wp5':'text', '.wpd':'text', '.xlam':'text', '.xlb':'text',
+        '.xls':'text', '.xlsb':'text', '.xlsm':'text', '.xlsx':'text',
         '.xlt':'text', '.xltm':'text', '.xlsx':'text', '.xml':'text'}
-            
+
     def apply_filters(self, fileobject, modification_date):
         show_file = True
         if isinstance(fileobject, str):
@@ -154,10 +155,10 @@ class Filter:
         if not self.fulltext:
             if '*' not in self.keywords and not self.string_wild_match(name):
                 show_file = False
-        if not self.show_hidden and is_hidden and self.keywords[0] != '.': 
+        if not self.show_hidden and is_hidden and self.keywords[0] != '.':
             show_file = False
         return show_file, is_hidden, modification_date, mime_type
-    
+
     def file_is_hidden(self, filename):
         """Determine if a file is hidden or in a hidden folder"""
         if filename == '': return False
@@ -169,14 +170,14 @@ class Filter:
                 if folder[0] == '.':
                     return True
         return False
-    
+
     def date_in_range(self, datetimeobject):
         if self.start_date == self.end_date:
             start_date = self.start_date - datetime.timedelta(days=1)
             end_date = self.end_date + datetime.timedelta(days=1)
             return start_date <= datetimeobject and end_date >= datetimeobject
         return self.start_date <= datetimeobject and self.end_date >= datetimeobject
-    
+
     def filetype_is_wanted(self, filename, mime_type):
         if (len(self.type_families) == 0 and len(self.custom_extensions) == 0
             and self.custom_mime == [None, None]):
@@ -197,7 +198,7 @@ class Filter:
         if mime_type[0] in self.type_families and mime_type[0] != 'application':
             return True
         return False
-        
+
     def determine_mimetype(self, filename):
         file_type = []
         ext = os.path.splitext(filename)[1]
@@ -208,7 +209,7 @@ class Filter:
             file_type.append(mime.media)
         file_type.append([mime.media, mime.subtype])
         return file_type
-    
+
     def string_wild_match(self, string):
         if self.exact_match:
             return self.keywords in string
@@ -220,7 +221,6 @@ class Filter:
                 if key not in string:
                     return False
             return True
-        
 
 
 class suggestions(list):
@@ -231,14 +231,14 @@ class suggestions(list):
         self.max_results = max_results
         self.stop_suggestions = False
         self.suggestions_running = False
-        
+
     def clear(self):
         """Clear the suggestions list."""
         del self[:]
 
     def zeitgeist_query(self, keywords, folder):
-        """Perform a query using zeitgeist.  
-        
+        """Perform a query using zeitgeist.
+
         Return the number of found results."""
         self.suggestions_running = True
         if not self.stop_suggestions:
@@ -246,7 +246,7 @@ class suggestions(list):
             try:
                 event_template = Event()
                 time_range = TimeRange.from_seconds_ago(60 * 3600 * 24) # 60 days at most
-                
+
                 results = iface.FindEvents(
                     time_range, # (min_timestamp, max_timestamp) in milliseconds
                     [event_template, ],
@@ -256,7 +256,7 @@ class suggestions(list):
                 )
 
                 results = (datamodel.Event(result) for result in results)
-                
+
                 for event in results:
                     if not self.stop_suggestions:
                         for subject in event.get_subjects():
@@ -278,10 +278,10 @@ class suggestions(list):
         self.suggestions_running = False
         self.stop_suggestions = False
         return result_count
-    
+
     def locate_query(self, keywords, folder):
         """Perform a query using locate.
-        
+
         Return the number of found results."""
         query = "locate -i %s --existing -n 20" % os.path.join(folder, "*%s*" % keywords)
         self.process = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -298,7 +298,7 @@ class suggestions(list):
                         self.append(filename)
             if self.__len__ == self.max_results: break
         return result_count
-    
+
     def run(self, keywords, folder, show_hidden=False):
         """Run the suggestions query and return the number of found
         results."""
@@ -311,11 +311,11 @@ class suggestions(list):
             return result_count
         else:
             return -1
-    
+
     def stop(self):
         if self.suggestions_running:
             self.stop_suggestions = True
-            
+
     def file_is_hidden(self, filename):
         """Determine if a file is hidden or in a hidden folder"""
         if filename == '': return False
@@ -377,25 +377,27 @@ class dbus_query:
                 # pass # Nothing was found
         return results
     def status(self): return self.err
-    
+
+
 class fulltext_query:
     def __init__(self, options):
         self.err = ''
         self.options = options
-        
+
     def run(self, keywords, folder, exact, hidden, limit):
         command = "find %s -name '*' -print0 | xargs -0 grep \"%s\"" % (folder, keywords)
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
-    
+
     def status(self): return self.err or self.process.poll()
+
 
 class shell_query:
     def __init__(self, options):
         self.err = ''
         self.options = options
-        
+
     def run(self, keywords, folder, exact, hidden, limit):
         (binary, daemon, default, case, nocase, limit_results, wildcards
             , file_manual, path_manual, exact_manual, errors_ignore, use_regex
@@ -558,7 +560,7 @@ class catfish:
             print 'Warning:', ('Method "%s" is not available.' %
              self.options.method)
             method_default = 0
-        
+
         self.suggestions = suggestions()
 
         if self.options.icons_large or self.options.thumbnails:
@@ -577,17 +579,17 @@ class catfish:
             self.treeview_files.append_column(column)
 
         self.entry_find_text.set_text(keywords)
-        
+
         self.find_in_progress = False
         self.results = []
-        
+
         self.suggestion_pending = False
         self.clear_deepsearch = False
         self.updatedb_done = False
-        
+
         # This variable shows that find was used for a set of results.
         self.find_powered = False
-        
+
         self.window_search.show_all()
 
 # -- helper functions --
@@ -603,19 +605,19 @@ class catfish:
         # Retrieve significant widgets
         self.window_search = self.builder.get_object('window_search')
         self.window_search.set_wmclass ("catfish", "catfish")
-        
+
         self.toolbar = self.builder.get_object('toolbar')
         context = self.toolbar.get_style_context()
         context.add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
-        
+
         self.button_find_folder = self.builder.get_object('button_find_folder')
         self.entry_find_text = self.builder.get_object('entry_find_text')
         self.box_main_controls = self.builder.get_object('box_main_controls')
-        
+
         self.box_infobar = self.builder.get_object('box_infobar')
         self.button_deepsearch = self.builder.get_object('button_search_find')
         self.label_deepsearch = self.builder.get_object('label_search_find')
-        
+
         # Application Menu
         self.menu_button = self.builder.get_object('menu_button')
         self.application_menu = self.builder.get_object('application_menu')
@@ -624,7 +626,7 @@ class catfish:
         self.checkbox_find_fulltext = self.builder.get_object('checkbox_find_fulltext')
         self.checkbox_advanced = self.builder.get_object('checkbox_advanced')
         self.application_menu.attach_to_widget(self.menu_button, detach_cb)
-        
+
         # Treeview and Right-Click menu
         self.scrolled_files = self.builder.get_object('scrolled_files')
         self.treeview_files = self.builder.get_object('treeview_files')
@@ -633,10 +635,10 @@ class catfish:
         self.menu_file_goto = self.builder.get_object('menu_goto')
         self.menu_file_copy = self.builder.get_object('menu_copy')
         self.menu_file_save = self.builder.get_object('menu_save')
-        
+
         self.spinner = self.builder.get_object('spinner')
         self.statusbar = self.builder.get_object('statusbar')
-        
+
         # Sidebar
         self.sidebar = self.builder.get_object('sidebar')
         self.box_type_filter = self.builder.get_object('box_type_filter')
@@ -651,10 +653,10 @@ class catfish:
         self.type_filter_applications = self.builder.get_object('type_filter_applications')
         self.type_filter_other = self.builder.get_object('type_filter_other')
         self.button_type_filter_other = self.builder.get_object('button_type_filter_other')
-        
-        
+
+
         self.aboutdialog = self.builder.get_object('aboutdialog')
-        
+
         self.date_dialog = self.builder.get_object('date_dialog')
         label_startdate = self.builder.get_object('label_startdate')
         label_enddate = self.builder.get_object("label_enddate")
@@ -666,14 +668,14 @@ class catfish:
         self.calendar_end = Gtk.Calendar()
         self.box_calendar_start.pack_start(self.calendar_start, True, True, 0)
         self.box_calendar_end.pack_start(self.calendar_end, True, True, 0)
-        
+
         self.mimetypes_dialog = self.builder.get_object('mimetypes_dialog')
         self.combobox_mimetype_existing = self.builder.get_object('combobox_mimetype_existing')
         self.entry_mimetype_custom = self.builder.get_object('entry_mimetype_custom')
         self.radio_mimetype_existing = self.builder.get_object('radio_mimetype_existing')
         radio_mimetype_custom = self.builder.get_object('radio_mimetype_custom')
         self.load_mimetypes()
-        
+
         self.dialog_updatedb = self.builder.get_object('dialog_updatedb')
         dialog_updatedb_text_primary = self.builder.get_object('dialog_updatedb_text_primary')
         dialog_updatedb_text_secondary = self.builder.get_object('dialog_updatedb_text_secondary')
@@ -682,23 +684,23 @@ class catfish:
         self.updatedb_label_done = self.builder.get_object('updatedb_label_done')
         self.updatedb_button_cancel = self.builder.get_object('updatedb_button_cancel')
         self.updatedb_button_ok = self.builder.get_object('updatedb_button_ok')
-        
+
         # Localized strings
         self.entry_find_text.set_placeholder_text( _("Search terms") )
-        
+
         self.button_deepsearch.set_label( _("Deep Search") )
         self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
-        
+
         self.checkbox_find_exact.set_label( _("Exact match") )
         self.checkbox_find_hidden.set_label( _("Hidden files") )
         self.checkbox_find_fulltext.set_label( _("Fulltext search") )
         self.checkbox_advanced.set_label( _("Advanced Filtering") )
-        
+
         self.time_filter_any.set_label( _("Any time") )
         self.time_filter_week.set_label( _("Past week") )
         self.time_filter_custom.set_label( _("Other") )
         self.button_time_filter_custom.set_label( _("Custom...") )
-        
+
         self.type_filter_documents.set_label( _("Documents") )
         self.type_filter_pictures.set_label( _("Images") )
         self.type_filter_music.set_label( _("Music") )
@@ -706,17 +708,17 @@ class catfish:
         self.type_filter_applications.set_label( _("Applications") )
         self.type_filter_other.set_label( _("Other") )
         self.button_type_filter_other.set_label( _("Custom...") )
-        
+
         self.date_dialog.set_title( _("Custom Time Range") )
         label_startdate.set_label( _("Start Date") )
         label_enddate.set_label( _("End Date") )
         calendar_start_today.set_label( _("Today") )
         calendar_end_today.set_label( _("Today") )
-        
+
         self.mimetypes_dialog.set_title( _("Custom File Filter") )
         self.radio_mimetype_existing.set_label( _("Existing mimetype") )
         radio_mimetype_custom.set_label( _("Enter extensions") )
-        
+
         self.dialog_updatedb.set_title( _("Update Search Index") )
         dialog_updatedb_text_primary.set_markup('<big><b>%s</b></big>' %
                                                 _("Update Search Index"))
@@ -724,7 +726,7 @@ class catfish:
         "locate database needs to be refreshed.\nThis requires sudo (admin) rights.") )
         self.updatedb_label_updating.set_label( _("Updating database...") )
         self.updatedb_label_done.set_label( _("Done.") )
-        
+
         # Signals
         self.calendar_start.connect("day-selected", self.on_filter_changed)
         self.calendar_start.connect("month-changed", self.on_filter_changed)
@@ -909,7 +911,7 @@ class catfish:
             return methods[method_name]
         except Exception:
             return method, '', '%s', '', '', '', 0, 0, 0, 0, 0, 0
-            
+
     def load_mimetypes(self):
         mimetypes.init()
         mimes = mimetypes.types_map.values()
@@ -923,9 +925,9 @@ class catfish:
             if mime not in mime_list:
                 mime_list.append(mime)
                 liststore.append([mime])
-            
+
         self.combobox_mimetype_existing.set_model(liststore)
-    
+
     def get_search_settings(self):
         keywords = self.entry_find_text.get_text()
         folder = self.button_find_folder.get_filename()
@@ -933,7 +935,7 @@ class catfish:
         hidden = self.checkbox_find_hidden.get_active()
         fulltext = self.checkbox_find_fulltext.get_active()
         limit = -1
-        
+
         if self.time_filter_any.get_active():
             start_date = datetime.datetime.min
             end_date = datetime.datetime.max
@@ -951,7 +953,7 @@ class catfish:
             end_date = self.calendar_end.get_date()
             end_date = datetime.datetime(end_date[0], end_date[1]+1,
                                          end_date[2]) + datetime.timedelta(days=1)
-        
+
         type_families = []
         if self.type_filter_documents.get_active():
             type_families.append('text')
@@ -963,7 +965,7 @@ class catfish:
             type_families.append('video')
         if self.type_filter_applications.get_active():
             type_families.append('application')
-        
+
         custom_mime = [None, None]
         custom_extensions = []
         if self.type_filter_other.get_active():
@@ -977,7 +979,7 @@ class catfish:
                 ext = self.entry_mimetype_custom.get_text()
                 ext = ext.replace(',', ' ')
                 custom_extensions = ext.split()
-                
+
         return (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
                 type_families, custom_mime, custom_extensions)
 
@@ -1014,7 +1016,7 @@ class catfish:
         # Retrieve search parameters
         (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
          type_families, custom_mime, custom_extensions) = self.get_search_settings()
-        
+
         if method == 'locate':
             keywords = keywords.replace('*', ' ')
             keywords = [ os.path.join(folder, '*%s*'%keyword) for keyword in keywords.split() ]
@@ -1024,9 +1026,9 @@ class catfish:
             time_format = '%x %X'
         else:
             time_format = '%Y-%m-%d %H:%M'
-        
-        result_filter = Filter(keywords, exact, hidden, fulltext, 
-        start_date, end_date, time_format, type_families, custom_mime, 
+
+        result_filter = Filter(keywords, exact, hidden, fulltext,
+        start_date, end_date, time_format, type_families, custom_mime,
         custom_extensions)
 
         if keywords != '':
@@ -1095,7 +1097,7 @@ class catfish:
                                                  time.localtime(os.path.getmtime(filename)))
                         (show_file, is_hidden, modification_date,
                          mime_type) = result_filter.apply_filters(filename, modified)
-                        
+
                         if self.options.thumbnails:
                             icon = self.get_thumbnail(filename, icon_size, mime_type)
                         else:
@@ -1210,7 +1212,7 @@ class catfish:
             else:
                 icon_name = Gtk.STOCK_FILE
         return self.get_icon_pixbuf(icon_name, icon_size)
-    
+
     def reset_text_entry_icon(self):
         eft = self.entry_find_text
         if self.find_in_progress:
@@ -1223,7 +1225,7 @@ class catfish:
             eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_FIND)
             eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY,
                                       _('Enter search terms and press ENTER'))
-            
+
     def show_suggestions(self, widget):
         self.suggestions.stop()
         if not self.suggestion_pending:
@@ -1232,7 +1234,7 @@ class catfish:
             query = widget.get_text()
             self.suggestions.run(query, self.button_find_folder.get_filename(),
                                  self.checkbox_find_hidden.get_active())
-            
+
             completion = self.entry_find_text.get_completion()
             listmodel = completion.get_model()
             listmodel.clear()
@@ -1243,7 +1245,7 @@ class catfish:
                 pass
             self.suggestion_pending = False
             yield False
-    
+
     def disable_filters(self):
         self.time_filter_any.set_active(True)
         for checkbox in self.box_type_filter.get_children():
@@ -1257,10 +1259,10 @@ class catfish:
     def on_window_search_destroy(self, widget):
         """When the application window is closed, end the program."""
         Gtk.main_quit()
-        
+
     def on_keypress(self, widget, event):
         """When a keypress is detected, do the following:
-        
+
         ESCAPE      Stop search/Clear Search terms
         Ctrl-Q      Exit
         Ctrl-W      Exit"""
@@ -1275,7 +1277,7 @@ class catfish:
                     self.abort_find = 1
                 else:
                     self.entry_find_text.set_text('')
-        
+
     # Keyword/Search Terms entry
     def on_entry_find_text_changed(self, widget):
         """When text is modified in the search terms box, change the
@@ -1301,50 +1303,50 @@ class catfish:
             GObject.idle_add(task.next)
         else:
             self.abort_find = 1
-        
+
     def on_entry_find_text_icon_clicked(self, widget, event, data):
-        """When the search/clear/stop icon is pressed, perform the 
+        """When the search/clear/stop icon is pressed, perform the
         appropriate action."""
         if self.find_in_progress:
             self.abort_find = 1
         else:
             self.entry_find_text.set_text('')
-            
+
     # Application Menu
     def on_menu_button_clicked(self, widget):
         """When the menu button is clicked, display the appmenu."""
-        self.application_menu.popup(None, None, menu_position, 
-                                    self.application_menu, 3, 
+        self.application_menu.popup(None, None, menu_position,
+                                    self.application_menu, 3,
                                     Gtk.get_current_event_time())
-        
+
     def on_application_menu_hide(self, widget):
         """When the application menu is unfocused (menu item activated
         or clicked elsewhere), unclick the button."""
         self.menu_button.set_active(False)
-        
+
     def on_checkbox_find_exact_toggled(self, widget):
         self.on_filter_changed(widget)
         if not self.find_powered:
             self.on_button_search_find_clicked(widget)
-        
+
     def on_checkbox_advanced_toggled(self, widget):
         """When the Advanced Filters toggle is activated, show/hide the
         advanced filters panel."""
         self.sidebar.set_visible(widget.get_active())
         if not widget.get_active():
             self.disable_filters()
-            
+
     # Update Locate Database Dialog
     def on_menu_updatedb_activate(self, widget):
         """Show the Update Locate Database dialog."""
         self.dialog_updatedb.show()
         self.dialog_updatedb.run()
-        
+
     def on_updatedb_button_cancel_clicked(self, widget):
         self.dialog_updatedb.hide()
         self.updatedb_label_updating.set_visible(False)
         self.updatedb_label_done.set_visible(False)
-        
+
     def on_dialog_updatedb_delete_event(self, widget, event):
         """Prevent updatedb dialog from being closed if in progress."""
         try:
@@ -1358,7 +1360,7 @@ class catfish:
             self.updatedb_label_updating.set_visible(False)
             self.updatedb_label_done.set_visible(False)
             return False
-    
+
     def on_dialog_updatedb_run(self, widget):
         """Request admin rights with gksudo and run updatedb."""
         if self.updatedb_done:
@@ -1393,7 +1395,7 @@ class catfish:
                                                      stdout=subprocess.PIPE,
                                                      stderr=subprocess.PIPE, shell=False)
             GObject.timeout_add(1000, updatedb_subprocess)
-            
+
     def on_menu_about_activate(self, widget):
         """Show the About dialog."""
         self.aboutdialog.show()
@@ -1489,14 +1491,14 @@ class catfish:
     def on_time_filter_custom_toggled(self, widget):
         """Enable/Disable the custom time filter button."""
         self.button_time_filter_custom.set_sensitive(widget.get_active())
-    
-    # Date Select Dialog    
+
+    # Date Select Dialog
     def on_button_time_filter_custom_clicked(self, widget):
         """Show the Custom Time filter dialog."""
         self.date_dialog.show_all()
         self.date_dialog.run()
         self.date_dialog.hide()
-        
+
     def on_calendar_start_today_toggled(self, widget):
         """Set the Start Date calendar to the current date and toggle
         sensitivity if the today checkbox is enabled."""
@@ -1505,7 +1507,7 @@ class catfish:
             self.calendar_start.select_month(today.month-1, today.year)
             self.calendar_start.select_day(today.day)
         self.calendar_start.set_sensitive(not widget.get_active())
-        
+
     def on_calendar_end_today_toggled(self, widget):
         """Set the End Date calendar to the current date and toggle
         sensitivity if the today checkbox is enabled."""
@@ -1519,22 +1521,22 @@ class catfish:
         """Enable/Disable the custom file type filter button."""
         self.button_type_filter_other.set_sensitive(widget.get_active())
         self.on_filter_changed(widget)
-        
+
     # Mimetypes Dialog
     def on_button_type_filter_other_clicked(self, widget):
         """Show the Custom Mimetype filter dialog."""
         self.mimetypes_dialog.show_all()
         self.mimetypes_dialog.run()
         self.mimetypes_dialog.hide()
-        
+
     def on_radio_mimetype_custom_toggled(self, widget):
         """Enable/Disable mimetype selection modes."""
         self.entry_mimetype_custom.set_sensitive(widget.get_active())
-        
+
     def on_radio_mimetype_existing_toggled(self, widget):
         """Enable/Disable mimetype selection modes."""
         self.combobox_mimetype_existing.set_sensitive(widget.get_active())
-        
+
     # Filter Change Event
     def on_filter_changed(self, widget):
         """When a filter is changed, adjust the displayed results."""
