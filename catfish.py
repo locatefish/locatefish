@@ -422,6 +422,7 @@ class shell_query:
             command += ' ' + keywords
         # print out query command:
         print command
+        self.command = command
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
@@ -1165,7 +1166,7 @@ class catfish:
             listmodel.set_sort_func(4, self.compare_dates, None)
 
         self.window_search.get_window().set_cursor(None)
-        self.window_search.set_title( _('Search results for \"%s\"') % keywords )
+        self.window_search.set_title('%s' % query.command)
         self.keywords = keywords
         self.spinner.hide()
         self.find_in_progress = False
