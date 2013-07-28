@@ -205,179 +205,6 @@ class Filter:
         return file_type
 
 
-class suggestions(list):
-    """Suggestions class, autocomplete for file search."""
-    def __init__(self, max_results=10):
-        """Initialize the suggestions class with a maximum # results."""
-        list.__init__(self)
-        self.max_results = max_results
-        self.stop_suggestions = False
-        self.suggestions_running = False
-
-    def clear(self):
-        """Clear the suggestions list."""
-        del self[:]
-
-    def zeitgeist_query(self, keywords, folder):
-        """Perform a query using zeitgeist.
-
-        Return the number of found results."""
-        self.suggestions_running = True
-        if not self.stop_suggestions:
-            result_count = 0
-            try:
-                event_template = Event()
-                time_range = TimeRange.from_seconds_ago(60 * 3600 * 24) # 60 days at most
-
-                results = iface.FindEvents(
-                    time_range, # (min_timestamp, max_timestamp) in milliseconds
-                    [event_template, ],
-                    datamodel.StorageState.Any,
-                    200,
-                    datamodel.ResultType.MostRecentSubjects
-                )
-
-                results = (datamodel.Event(result) for result in results)
-
-                for event in results:
-                    if not self.stop_suggestions:
-                        for subject in event.get_subjects():
-                            if subject.uri[:7] == 'file://':
-                                filename = split_filename(subject.uri)[1].lower()
-                                if (keywords.lower() in filename and
-                                    filename not in self and
-                                    folder.lower() in filename):
-                                    result_count += 1
-                                    if self.show_hidden:
-                                        self.append(filename)
-                                    else:
-                                        if not self.file_is_hidden(filename):
-                                            self.append(filename)
-                            if self.__len__ == self.max_results: break
-                        if self.__len__ == self.max_results: break
-            except NameError:
-                pass
-        self.suggestions_running = False
-        self.stop_suggestions = False
-        return result_count
-
-    def locate_query(self, keywords, folder):
-        """Perform a query using locate.
-
-        Return the number of found results."""
-        query = "locate -i %s --existing -n 20" % os.path.join(folder, "*%s*" % keywords)
-        self.process = subprocess.Popen(query, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        shell=True)
-        result_count = 0
-        for filepath in self.process.communicate()[0].split('\n'):
-            filename = split_filename(filepath)[1].lower()
-            if filename not in self and keywords.lower() == filename[:len(keywords)]:
-                result_count += 1
-                if self.show_hidden:
-                    self.append(filename)
-                else:
-                    if not self.file_is_hidden(filename):
-                        self.append(filename)
-            if self.__len__ == self.max_results: break
-        return result_count
-
-    def run(self, keywords, folder, show_hidden=False):
-        """Run the suggestions query and return the number of found
-        results."""
-        self.show_hidden = show_hidden
-        if len(keywords) > 1:
-            self.clear()
-            result_count = 0
-            result_count += self.zeitgeist_query(keywords, folder)
-            result_count += self.locate_query(keywords, folder)
-            return result_count
-        else:
-            return -1
-
-    def stop(self):
-        if self.suggestions_running:
-            self.stop_suggestions = True
-
-    def file_is_hidden(self, filename):
-        """Determine if a file is hidden or in a hidden folder"""
-        if filename == '': return False
-        path, name = os.path.split(filename)
-        if len(name) and name[0] == '.': return True
-        for folder in path.split(os.path.sep):
-            if len(folder):
-                if folder[0] == '.':
-                    return True
-        return False
-
-
-class dbus_query:
-    def __init__(self, options):
-        self.err = ''
-        self.options = options
-        method = options[0]
-        try:
-            bus = dbus.SessionBus()
-        except Exception, msg:
-            if 1: print 'Debug:', msg # DEBUG
-            self.err = 'DBus is unavailable.'
-            return
-        if method == 'strigi':
-            domain, service = 'vandenoever.strigi', '/search'
-        elif method == 'pinot':
-            domain, service = 'de.berlios.Pinot', '/de/berlios/Pinot'
-        else:
-            self.err = 'Program %s is unknown' % method
-            return
-        try:
-            obj = bus.get_object(domain, service)
-            self.interface = dbus.Interface(obj, domain)
-        except Exception, msg:
-            if 1: print 'Debug:', msg # DEBUG
-            self.err = 'Program %s is unavailable' % method
-    def run(self, keywords, folder, exact, hidden, limit):
-        results = []
-        if self.options[0] == 'strigi':
-            for result in self.interface.getHits(keywords, limit, 0):
-                results.append(result[0])
-        elif self.options[0] == 'pinot':
-            if limit < 0: limit = 32000
-            if len(folder) > 1:
-                keywords += ' dir:' + folder
-            try:
-                for result in self.interface.SimpleQuery(keywords, dbus.UInt32(limit)):
-                    docinfo = self.interface.GetDocumentInfo(dbus.UInt32(result))
-                    if type(docinfo) == 'str': # Support pinot <= 0.70
-                        results.append(docinfo[1])
-                    else:
-                        fields = docinfo
-                        for field in fields:
-                            if field[0] == "url":
-                                results.append(field[1])
-                                break
-            except Exception, msg:
-                if 1: print 'Debug:', msg # DEBUG
-                # pass # Nothing was found
-        return results
-
-    def status(self):
-        return self.err
-
-'''
-class fulltext_query:
-    def __init__(self, options):
-        self.err = ''
-        self.options = options
-
-    def run(self, keywords, folder, exact, hidden, limit):
-        command = "find %s -name '*' -print0 | xargs -0 grep \"%s\"" % (folder, keywords)
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE, shell=True)
-        return self.process.stdout
-
-    def status(self):
-        return self.err or self.process.poll()
-'''
-
 class shell_query:
     def __init__(self, method, method_args):
         self.err = ''
@@ -537,7 +364,7 @@ class catfish:
             print 'Warning: Method "%s" is not available' % self.options.method
             method_default = 0
 
-        self.suggestions = suggestions()
+        #self.suggestions = suggestions()
 
         if self.options.icons_large or self.options.thumbnails:
             pr = Gtk.TreeViewColumn(_('Preview'), Gtk.CellRendererPixbuf(), pixbuf=0)
@@ -1152,7 +979,7 @@ class catfish:
             eft.set_icon_from_stock(Gtk.EntryIconPosition.SECONDARY, Gtk.STOCK_FIND)
             eft.set_icon_tooltip_text(Gtk.EntryIconPosition.SECONDARY,
                                       _('Enter search terms and press ENTER'))
-
+    '''
     def show_suggestions(self, widget):
         self.suggestions.stop()
         if not self.suggestion_pending:
@@ -1172,7 +999,7 @@ class catfish:
                 pass
             self.suggestion_pending = False
             yield False
-
+    '''
     def disable_filters(self):
         self.time_filter_any.set_active(True)
         for checkbox in self.box_type_filter.get_children():
