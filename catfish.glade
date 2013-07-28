@@ -85,7 +85,7 @@ zh_TW: Walter Cheuk &lt;wwycheuk@gmail.com&gt;
       <object class="GtkCheckMenuItem" id="checkbox_find_exact">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Exact match</property>
+        <property name="label" translatable="yes">Match case</property>
         <property name="use_underline">True</property>
         <signal name="toggled" handler="on_checkbox_find_exact_toggled" swapped="no"/>
       </object>

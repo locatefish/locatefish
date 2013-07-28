@@ -154,7 +154,7 @@ class Filter:
             show_file = False
         if not self.filetype_is_wanted(filename, mime_type[1]):
             show_file = False
-        if not self.show_hidden and is_hidden:
+        if not self.hidden and is_hidden:
             show_file = False
         return show_file, is_hidden, modification_date, mime_type
 
@@ -265,9 +265,9 @@ class catfish:
         parser.add_option('', '--wrapper', metavar='WRAPPER', dest='open_wrapper',
                           help='Use WRAPPER to open files')
         parser.add_option('', '--method', help='Use METHOD to search')
-        parser.add_option('', '--exact', action='store_true', help='Perform exact match')
         parser.add_option('', '--intersect', action='store_true',
                           help='Intersect results from search terms')
+        parser.add_option('', '--exact', action='store_true', help='Match case')
         parser.add_option('', '--hidden', action='store_true', help='Include hidden files')
         #parser.add_option('', '--fulltext', action='store_true',
         #                   help='Perform fulltext search')
@@ -504,8 +504,8 @@ class catfish:
         #self.button_deepsearch.set_label( _("Deep Search") )
         #self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
 
-        self.checkbox_find_exact.set_label( _("Exact match") )
         self.checkbox_find_intersect.set_label( _("Intersect terms") )
+        self.checkbox_find_exact.set_label( _("Match case") )
         self.checkbox_find_hidden.set_label( _("Hidden files") )
         #self.checkbox_find_fulltext.set_label( _("Fulltext search") )
         self.checkbox_advanced.set_label( _("Advanced Filtering") )
