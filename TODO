@@ -1,6 +1,10 @@
 TODO:
-    * remove all methods other than locate
+    * (optionally?) AND all search terms instead of ORing them
     * remove suggestions
     * rename "exact" to "case sensitive" (for now, exact still passes -i to locate)
     * drag and drop of filenames
+    * save folder and window size across sessions
     * fix popup menu not being shown on first click
+
+DONE:
+    * remove all methods other than locate
