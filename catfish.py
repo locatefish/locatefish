@@ -385,6 +385,7 @@ class shell_query:
         self.method_args = method_args
 
     def run(self, keywords, folder, exact, hidden, limit):
+        """Run the query subprocess. keywords is a list of (multi)words"""
         case, nocase = self.method_args
         # build up shell command:
         command = self.method
@@ -395,9 +396,10 @@ class shell_query:
         # disable limit for now:
         #if limit > 0:
         #    command += ' ' + limit_results
-        #if file_manual:
-        #    command += ' "*%s*"' % keywords.strip('"')
-        #else:
+        # surround each keyword with *, prepend folder:
+        keywords = [ os.path.join(folder, '*%s*' % keyword) for keyword in keywords ]
+        # rebuild space separated string, with quotes around each (multi)word:
+        keywords = ' '.join([ '"%s"' % keyword for keyword in keywords ])
         command += ' ' + keywords
         # print out query command:
         print command
@@ -984,10 +986,6 @@ class catfish:
             # remove any quotes, split by whitespace:
             keywords = keywords.replace('"', '').split()
             keywords.extend(multiwords) # combine into one list
-            # add folder to start of every (multi)word, surround each with *:
-            keywords = [ os.path.join(folder, '*%s*' % keyword) for keyword in keywords ]
-            # rebuild space separated string, with quotes around each (multi)word:
-            keywords = ' '.join([ '"%s"' % keyword for keyword in keywords ])
 
         if not self.options.time_iso:
             time_format = '%x %X'
