@@ -91,14 +91,12 @@ def menu_position(self, menu, data=None, something_else=None):
 
 
 class Filter:
-    def __init__(self, keywords, exact_match, show_hidden, fulltext,
-        start_date, end_date, time_format, type_families, custom_mime,
-        custom_extensions):
-
+    def __init__(self, keywords, exact_match, show_hidden, start_date, end_date,
+                 time_format, type_families, custom_mime, custom_extensions):
         self.keywords = keywords
         self.exact_match = bool(exact_match)
         self.show_hidden = bool(show_hidden)
-        self.fulltext = bool(fulltext)
+        #self.fulltext = bool(fulltext)
         self.start_date = start_date
         self.end_date = end_date
         self.time_format = time_format
@@ -152,9 +150,6 @@ class Filter:
             show_file = False
         if not self.filetype_is_wanted(filename, mime_type[1]):
             show_file = False
-        if not self.fulltext:
-            if '*' not in self.keywords and not self.string_wild_match(name):
-                show_file = False
         if not self.show_hidden and is_hidden and self.keywords[0] != '.':
             show_file = False
         return show_file, is_hidden, modification_date, mime_type
@@ -380,6 +375,7 @@ class dbus_query:
     def status(self):
         return self.err
 
+'''
 class fulltext_query:
     def __init__(self, options):
         self.err = ''
@@ -391,8 +387,9 @@ class fulltext_query:
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
 
-    def status(self): return self.err or self.process.poll()
-
+    def status(self):
+        return self.err or self.process.poll()
+'''
 
 class shell_query:
     def __init__(self, options):
@@ -400,11 +397,7 @@ class shell_query:
         self.options = options
 
     def run(self, keywords, folder, exact, hidden, limit):
-        (binary, daemon, default, case, nocase, limit_results, wildcards, file_manual,
-         path_manual, exact_manual, errors_ignore, use_regex) = self.options
-        #if 'locate' in binary and '*' not in keywords:
-        #    command = default % binary + ' --regex'
-        #else:
+        binary, daemon, default, case, nocase, limit_results, errors_ignore = self.options
         command = default % binary
         if exact:
             command += ' ' + case
@@ -412,15 +405,10 @@ class shell_query:
             command += ' ' + nocase
         if limit > 0:
             command += ' ' + limit_results
-        #if wildcards:
-        #    keywords = keywords.replace(' ', '*')
-        if use_regex:
-            raise ValueError('use_regex unsupported')
-            keywords = string_regex(keywords)
-        if file_manual:
-            command += ' "*%s*"' % keywords.strip('"')
-        else:
-            command += ' ' + keywords
+        #if file_manual:
+        #    command += ' "*%s*"' % keywords.strip('"')
+        #else:
+        command += ' ' + keywords
         # print out query command:
         print command
         self.command = command
@@ -459,10 +447,10 @@ class catfish:
         parser.add_option('', '--wrapper', metavar='WRAPPER', dest='open_wrapper',
                           help='Use WRAPPER to open files')
         parser.add_option('', '--method', help='Use METHOD to search')
-        parser.add_option('', '--fulltext', action='store_true'
-            , help='Perform fulltext search')
         parser.add_option('', '--exact', action='store_true', help='Perform exact match')
         parser.add_option('', '--hidden', action='store_true', help='Include hidden files')
+        #parser.add_option('', '--fulltext', action='store_true',
+        #                   help='Perform fulltext search')
         parser.add_option('', '--file-action', metavar='ACTION', dest='file_action',
                           help='File action: "open" or "folder"')
         parser.add_option('', '--debug', action='store_true', help='Show debugging messages.')
@@ -510,7 +498,7 @@ class catfish:
         self.icon_theme = Gtk.IconTheme.get_default()
         self.checkbox_find_exact.set_active(self.options.exact)
         self.checkbox_find_hidden.set_active(self.options.hidden)
-        self.checkbox_find_fulltext.set_active(self.options.fulltext)
+        #self.checkbox_find_fulltext.set_active(self.options.fulltext)
         if self.options.limit_results:
             self.checkbox_find_limit.set_active(1)
             self.checkbox_find_limit.toggled()
@@ -586,7 +574,7 @@ class catfish:
         self.results = []
 
         self.suggestion_pending = False
-        self.clear_deepsearch = False
+        #self.clear_deepsearch = False
         self.updatedb_done = False
 
         # This variable shows that find was used for a set of results.
@@ -617,15 +605,15 @@ class catfish:
         self.box_main_controls = self.builder.get_object('box_main_controls')
 
         self.box_infobar = self.builder.get_object('box_infobar')
-        self.button_deepsearch = self.builder.get_object('button_search_find')
-        self.label_deepsearch = self.builder.get_object('label_search_find')
+        #self.button_deepsearch = self.builder.get_object('button_search_find')
+        #self.label_deepsearch = self.builder.get_object('label_search_find')
 
         # Application Menu
         self.menu_button = self.builder.get_object('menu_button')
         self.application_menu = self.builder.get_object('application_menu')
         self.checkbox_find_exact = self.builder.get_object('checkbox_find_exact')
         self.checkbox_find_hidden = self.builder.get_object('checkbox_find_hidden')
-        self.checkbox_find_fulltext = self.builder.get_object('checkbox_find_fulltext')
+        #self.checkbox_find_fulltext = self.builder.get_object('checkbox_find_fulltext')
         self.checkbox_advanced = self.builder.get_object('checkbox_advanced')
         self.application_menu.attach_to_widget(self.menu_button, detach_cb)
 
@@ -690,12 +678,12 @@ class catfish:
         # Localized strings
         self.entry_find_text.set_placeholder_text( _("Search terms") )
 
-        self.button_deepsearch.set_label( _("Deep Search") )
-        self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
+        #self.button_deepsearch.set_label( _("Deep Search") )
+        #self.label_deepsearch.set_label( _("Didn't find what you were looking for?") )
 
         self.checkbox_find_exact.set_label( _("Exact match") )
         self.checkbox_find_hidden.set_label( _("Hidden files") )
-        self.checkbox_find_fulltext.set_label( _("Fulltext search") )
+        #self.checkbox_find_fulltext.set_label( _("Fulltext search") )
         self.checkbox_advanced.set_label( _("Advanced Filtering") )
 
         self.time_filter_any.set_label( _("Any time") )
@@ -935,7 +923,7 @@ class catfish:
         folder = self.button_find_folder.get_filename()
         exact = self.checkbox_find_exact.get_active()
         hidden = self.checkbox_find_hidden.get_active()
-        fulltext = self.checkbox_find_fulltext.get_active()
+        #fulltext = self.checkbox_find_fulltext.get_active()
         limit = -1
 
         if self.time_filter_any.get_active():
@@ -982,45 +970,45 @@ class catfish:
                 ext = ext.replace(',', ' ')
                 custom_extensions = ext.split()
 
-        return (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+        return (keywords, folder, exact, hidden, limit, start_date, end_date,
                 type_families, custom_mime, custom_extensions)
 
-    def find(self, widget=None, method='locate', deepsearch=False):
+    def find(self, widget=None, method='locate'):
         """Do the actual search."""
-        if self.checkbox_find_fulltext.get_active():
-            method = 'find'
-        if self.clear_deepsearch:
-            deepsearch=False
-        if method == 'find':
-            self.find_powered = True
-        else:
-            self.find_powered = False
+        #if self.checkbox_find_fulltext.get_active():
+        #    method = 'find'
+        #if self.clear_deepsearch:
+        #    deepsearch=False
+        #if method == 'find':
+        #    self.find_powered = True
+        #else:
+        #    self.find_powered = False
         self.box_infobar.hide()
         self.spinner.show()
         self.find_in_progress = True
         self.reset_text_entry_icon()
-        if not deepsearch:
-            self.results = []
+        #if not deepsearch:
+        self.results = []
         self.window_search.get_window().set_cursor(Gdk.Cursor(Gdk.CursorType.WATCH))
         self.window_search.set_title(_('Searching for "%s"') % self.entry_find_text.get_text())
         self.statusbar.push(self.statusbar.get_context_id('results'), _('Searching...'))
         while Gtk.events_pending(): Gtk.main_iteration()
 
-        if deepsearch:
-            listmodel = self.treeview_files.get_model()
-        else:
+        #if deepsearch:
+        #    listmodel = self.treeview_files.get_model()
+        #else:
         # Reset treeview
-            listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
-            self.treeview_files.set_model(listmodel)
-            self.treeview_files.columns_autosize()
-            listmodel.set_sort_column_id(1, Gtk.SortType.ASCENDING)
+        listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
+        self.treeview_files.set_model(listmodel)
+        self.treeview_files.columns_autosize()
+        listmodel.set_sort_column_id(1, Gtk.SortType.ASCENDING)
 
         # Retrieve search parameters
-        (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+        (keywords, folder, exact, hidden, limit, start_date, end_date,
          type_families, custom_mime, custom_extensions) = self.get_search_settings()
 
         if method == 'locate':
-            keywords = keywords.replace('*', ' ') # ignore wildcards
+            #keywords = keywords.replace('*', ' ') # ignore wildcards
             # find any words in quotes, from http://stackoverflow.com/a/9519934/2020363:
             multiwords = re.findall(r'\"(.+?)\"', keywords)
             for multiword in multiwords:
@@ -1038,17 +1026,14 @@ class catfish:
         else:
             time_format = '%Y-%m-%d %H:%M'
 
-        result_filter = Filter(keywords, exact, hidden, fulltext,
-        start_date, end_date, time_format, type_families, custom_mime,
-        custom_extensions)
+        result_filter = Filter(keywords, exact, hidden, start_date, end_date, time_format,
+                               type_families, custom_mime, custom_extensions)
 
         if keywords != '':
             # Generate search command
             self.keywords = keywords
             self.folder = folder
-            options = self.get_find_options(method, folder, limit)
-            (a, daemon, default, a, a, a, wildcards, file_manual, path_manual,
-             exact_manual, errors_ignore, use_regex) = options
+            case, nocase = self.get_find_options(method)
 
             # Set display options
             if not self.options.icons_large and not self.options.thumbnails:
@@ -1058,112 +1043,77 @@ class catfish:
 
             # Run search command and capture the results
             messages = []
-            if ('*' in keywords or '?' in keywords) and not wildcards:
-                status_icon = Gtk.STOCK_CANCEL
-                messages.append([_('The search backend doesn\'t support wildcards.'), None])
+            #if fulltext:
+            #    query = fulltext_query(options)
+            #else:
+            query = shell_query(options)
+            for filename in query.run(keywords, folder, exact, hidden, limit):
+                if self.abort_find or len(listmodel) == limit: break
+                filename = filename.split(os.linesep)[0]
+                # Convert uris to filenames
+                if filename[:7] == 'file://':
+                    filename = filename[7:]
+                # Handle mailbox uris like filenames as well
+                if filename[:10] == 'mailbox://':
+                    filename = filename[10:]
+                    filename = filename[:filename.index('?')]
+                path, name = os.path.split(filename)
+                try:
+                    size = long(os.path.getsize(filename))
+                    modified = time.strftime(time_format,
+                                             time.localtime(os.path.getmtime(filename)))
+                    (show_file, is_hidden, modification_date,
+                     mime_type) = result_filter.apply_filters(filename, modified)
+
+                    if self.options.thumbnails:
+                        icon = self.get_thumbnail(filename, icon_size, mime_type)
+                    else:
+                        icon = self.get_file_icon(filename, icon_size, mime_type)
+
+                    # required to prevent display issues when markup == 1:
+                    #name = name.replace('&', '&amp;')
+                    result = [filename, is_hidden, modification_date, mime_type]
+                    if not self.options.icons_large and not self.options.thumbnails:
+                        result.append([icon, name, path, size, modified])
+                        if result not in self.results:
+                            if show_file:
+                                listmodel.append(result[4])
+                            self.results.append(result)
+                    else:
+                        path = path.replace('&', '&amp;')
+                        if modified <> '':
+                            modified = os.linesep + modified
+                        result.append([icon, '%s %s%s%s%s' % (name
+                            , path, os.linesep, self.format_size(size)
+                            , modified), None, name, path])
+                        if result not in self.results:
+                            if show_file:
+                                listmodel.append(result[4])
+                            self.results.append(result)
+                except Exception, msg:
+                    if self.options.debug: print 'Debug:', msg
+                    pass # Ignore inaccessible files
+                yield True
+            self.treeview_files.set_model(listmodel)
+            if len(listmodel) == 0:
+                #self.clear_deepsearch = True
+                if errors_ignore and query.status():
+                    status_icon = Gtk.STOCK_CANCEL
+                    messages.append([_('Fatal error, search was aborted.'), None])
+                else:
+                    status_icon = Gtk.STOCK_INFO
+                    messages.append([_('No files were found.'), None])
                 status = _('No files found.')
             else:
-                if fulltext:
-                    query = fulltext_query(options)
-                else:
-                    try:
-                        if default[:7] == 'dbus://':
-                            query = dbus_query(options)
-                        else:
-                            query = shell_query(options)
-                    except Exception, msg:
-                        if self.options.debug: print 'Debug:', msg
-                        query = generic_query()
-                for filename in query.run(keywords, folder, exact, hidden, limit):
-                    if self.abort_find or len(listmodel) == limit: break
-                    if fulltext:
-                        filename = filename.split(':')[0]
-                        if not os.path.isfile(filename):
-                            # "Binary file x matches"
-                            filename = filename[12:]
-                            filename = filename[:len(filename)-8]
-                        if not os.path.isfile(filename):
-                            yield True
-                            continue
-                    else:
-                        filename = filename.split(os.linesep)[0]
-                        # Convert uris to filenames
-                        if filename[:7] == 'file://':
-                            filename = filename[7:]
-                        # Handle mailbox uris like filenames as well
-                        if filename[:10] == 'mailbox://':
-                            filename = filename[10:]
-                            filename = filename[:filename.index('?')]
-                    path, name = os.path.split(filename)
-                    if (path_manual or exact_manual) and not fulltext:
-                        if '*' not in keywords and not result_filter.string_wild_match(name):
-                            yield True
-                            continue
-                    if path_manual and not folder in path:
-                        yield True
-                        continue
-                    try:
-                        size = long(os.path.getsize(filename))
-                        modified = time.strftime(time_format,
-                                                 time.localtime(os.path.getmtime(filename)))
-                        (show_file, is_hidden, modification_date,
-                         mime_type) = result_filter.apply_filters(filename, modified)
-
-                        if self.options.thumbnails:
-                            icon = self.get_thumbnail(filename, icon_size, mime_type)
-                        else:
-                            icon = self.get_file_icon(filename, icon_size, mime_type)
-
-                        # required to prevent display issues when markup == 1:
-                        #name = name.replace('&', '&amp;')
-                        result = [filename, is_hidden, modification_date, mime_type]
-                        if not self.options.icons_large and not self.options.thumbnails:
-                            result.append([icon, name, path, size, modified])
-                            if result not in self.results:
-                                if show_file:
-                                    listmodel.append(result[4])
-                                self.results.append(result)
-                        else:
-                            path = path.replace('&', '&amp;')
-                            if modified <> '':
-                                modified = os.linesep + modified
-                            result.append([icon, '%s %s%s%s%s' % (name
-                                , path, os.linesep, self.format_size(size)
-                                , modified), None, name, path])
-                            if result not in self.results:
-                                if show_file:
-                                    listmodel.append(result[4])
-                                self.results.append(result)
-                    except Exception, msg:
-                        if self.options.debug: print 'Debug:', msg
-                        pass # Ignore inaccessible files
-                    yield True
-                if not deepsearch:
-                    self.treeview_files.set_model(listmodel)
-                if len(listmodel) == 0:
-                    self.clear_deepsearch = True
-                    if errors_ignore and query.status():
-                        status_icon = Gtk.STOCK_CANCEL
-                        messages.append([_('Fatal error, search was aborted.'), None])
-                        if daemon <> '':
-                            link_format = '<u><span foreground="%s">%s</span></u>'
-                            messages.append([link_format % (self.link_color,
-                                _('Click here to start the search daemon.')),
-                                '<span size="0">daemon:' + daemon + '</span>'])
-                    else:
-                        status_icon = Gtk.STOCK_INFO
-                        messages.append([_('No files were found.'), None])
-                    status = _('No files found.')
-                else:
-                    self.clear_deepsearch = False
-                    status = _('%s files found.') % str(len(listmodel))
+                #self.clear_deepsearch = False
+                status = _('%s files found.') % str(len(listmodel))
             for message, action in messages:
                 icon = [None, self.get_icon_pixbuf(status_icon)][message == messages[0][0]]
                 listmodel.append([icon, message, None, None, action])
             self.statusbar.push(self.statusbar.get_context_id('results'), status)
-        if not deepsearch:
-            self.treeview_files.set_model(listmodel)
-            listmodel.set_sort_func(4, self.compare_dates, None)
+        #if not deepsearch:
+        self.treeview_files.set_model(listmodel)
+        listmodel.set_sort_func(4, self.compare_dates, None)
 
         self.window_search.get_window().set_cursor(None)
         self.window_search.set_title('%s' % query.command)
@@ -1557,11 +1507,10 @@ class catfish:
                 time_format = '%x %X'
             else:
                 time_format = '%Y-%m-%d %H:%M'
-            (keywords, folder, exact, hidden, fulltext, limit, start_date, end_date,
+            (keywords, folder, exact, hidden, limit, start_date, end_date,
              type_families, custom_mime, custom_extensions) = self.get_search_settings()
-            result_filter = Filter(keywords, exact, hidden, fulltext,
-                                   start_date, end_date, time_format, type_families,
-                                   custom_mime, custom_extensions)
+            result_filter = Filter(keywords, exact, hidden, start_date, end_date,
+                                   time_format, type_families, custom_mime, custom_extensions)
             messages = []
             sort_settings = self.treeview_files.get_model().get_sort_column_id()
             listmodel = Gtk.ListStore(GdkPixbuf.Pixbuf, str, str, long, str)
@@ -1575,21 +1524,14 @@ class catfish:
                 (show_file, is_hidden, modification_date,
                  mime_type) = result_filter.apply_filters(filegroup, modification_date)
                 if show_file:
-                    if not fulltext:
-                        if ('*' not in self.keywords and
-                            not result_filter.string_wild_match(name)):
-                            pass
-                        else:
-                            listmodel.append(filegroup[4])
-                    else:
-                        listmodel.append(filegroup[4])
+                    listmodel.append(filegroup[4])
             if len(listmodel) == 0:
-                self.clear_deepsearch = True
+                #self.clear_deepsearch = True
                 status_icon = Gtk.STOCK_INFO
                 messages.append([_('No files were found.'), None])
                 status = _('No files found.')
             else:
-                self.clear_deepsearch = False
+                #self.clear_deepsearch = False
                 status = _('%s files found.') % str(len(listmodel))
             for message, action in messages:
                 icon = [None, self.get_icon_pixbuf(status_icon)][message == messages[0][0]]
@@ -1600,7 +1542,7 @@ class catfish:
 
             self.window_search.get_window().set_cursor(None)
             self.find_in_progress = False
-
+    '''
     # Deep Search Info/Status bar
     def on_button_search_find_clicked(self, widget):
         """When the deep search button is pressed, perform an additional
@@ -1613,7 +1555,7 @@ class catfish:
             GObject.idle_add(task.next)
         else:
             self.abort_find = 1
-
+    '''
 
 catfish()
 Gtk.main()
