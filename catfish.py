@@ -376,8 +376,9 @@ class dbus_query:
                 if 1: print 'Debug:', msg # DEBUG
                 # pass # Nothing was found
         return results
-    def status(self): return self.err
 
+    def status(self):
+        return self.err
 
 class fulltext_query:
     def __init__(self, options):
@@ -426,7 +427,9 @@ class shell_query:
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
-    def status(self): return self.err or self.process.poll()
+        
+    def status(self):
+        return self.err or self.process.poll()
 
 
 class generic_query:
@@ -443,33 +446,30 @@ class catfish:
         # Parse command line options
         parser = optparse.OptionParser(usage='usage: ' + app_name + ' [options] keywords',
             version=app_name + ' v' + app_version)
-        parser.add_option('', '--large-icons', action='store_true'
-            , dest='icons_large', help='Use large icons')
-        parser.add_option('', '--thumbnails', action='store_true'
-            , dest='thumbnails', help='Use thumbnails')
-        parser.add_option('', '--iso-time', action='store_true'
-            , dest='time_iso', help='Display time in iso format')
-        parser.add_option('', '--limit', type='int', metavar='LIMIT'
-            , dest='limit_results', help='Limit number of results')
+        parser.add_option('', '--large-icons', action='store_true', dest='icons_large',
+                          help='Use large icons')
+        parser.add_option('', '--thumbnails', action='store_true', dest='thumbnails',
+                          help='Use thumbnails')
+        parser.add_option('', '--iso-time', action='store_true', dest='time_iso',
+                          help='Display time in iso format')
+        parser.add_option('', '--limit', type='int', metavar='LIMIT', dest='limit_results',
+                          help='Limit number of results')
         parser.add_option('', '--path', help='Search in folder PATH')
         parser.add_option('', '--fileman', help='Use FILEMAN as filemanager')
-        parser.add_option('', '--wrapper', metavar='WRAPPER'
-            , dest='open_wrapper', help='Use WRAPPER to open files')
+        parser.add_option('', '--wrapper', metavar='WRAPPER', dest='open_wrapper',
+                          help='Use WRAPPER to open files')
         parser.add_option('', '--method', help='Use METHOD to search')
-        parser.add_option('', '--exact', action='store_true'
-            , help='Perform exact match')
-        parser.add_option('', '--hidden', action='store_true'
-            , help='Include hidden files')
         parser.add_option('', '--fulltext', action='store_true'
             , help='Perform fulltext search')
-        parser.add_option('', '--file-action', metavar='ACTION'
-            , dest='file_action', help='File action: "open" or "folder"')
-        parser.add_option('', '--debug', action='store_true'
-            , help='Show debugging messages.')
-        parser.set_defaults(icons_large=0, thumbnails=0, time_iso=1, method='locate'
-            , limit_results=0, path='~/papers', fileman=self.open_wrapper, exact=0
-            , hidden=1, fulltext=0, file_action='open', debug=0
-            , open_wrapper=self.open_wrapper)
+        parser.add_option('', '--exact', action='store_true', help='Perform exact match')
+        parser.add_option('', '--hidden', action='store_true', help='Include hidden files')
+        parser.add_option('', '--file-action', metavar='ACTION', dest='file_action',
+                          help='File action: "open" or "folder"')
+        parser.add_option('', '--debug', action='store_true', help='Show debugging messages.')
+        parser.set_defaults(icons_large=False, thumbnails=False, time_iso=True,
+                            method='locate', limit_results=False, path='~/papers',
+                            fileman=self.open_wrapper, exact=False, hidden=True,
+                            file_action='open', debug=False, open_wrapper=self.open_wrapper)
         self.options, args = parser.parse_args()
         keywords = ' '.join(args)
 
