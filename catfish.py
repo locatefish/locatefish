@@ -414,12 +414,12 @@ class shell_query:
         #if wildcards:
         #    keywords = keywords.replace(' ', '*')
         if use_regex:
+            raise ValueError('use_regex unsupported')
             keywords = string_regex(keywords)
         if file_manual:
-            command += ' "*%s*"' % keywords
+            command += ' "*%s*"' % keywords.strip('"')
         else:
-            kwstring = ' '.join([ '"%s"' % keyword for keyword in keywords.split() ])
-            command += ' ' + kwstring
+            command += ' ' + keywords
         # print out query command:
         print command
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
@@ -1019,10 +1019,19 @@ class catfish:
          type_families, custom_mime, custom_extensions) = self.get_search_settings()
 
         if method == 'locate':
-            keywords = keywords.replace('*', ' ')
-            keywords = [ os.path.join(folder, '*%s*'%keyword) for keyword in keywords.split() ]
-            keywords = ' '.join(keywords) # back to a space separated string of keywords
-        
+            keywords = keywords.replace('*', ' ') # ignore wildcards
+            # find any words in quotes, from http://stackoverflow.com/a/9519934/2020363:
+            multiwords = re.findall(r'\"(.+?)\"', keywords)
+            for multiword in multiwords:
+                keywords = keywords.replace(multiword, '') # remove any multiwords
+            # remove any quotes, split by whitespace:
+            keywords = keywords.replace('"', '').split()
+            keywords.extend(multiwords) # combine into one list
+            # add folder to start of every (multi)word, surround each with *:
+            keywords = [ os.path.join(folder, '*%s*' % keyword) for keyword in keywords ]
+            # rebuild space separated string, with quotes around each (multi)word:
+            keywords = ' '.join([ '"%s"' % keyword for keyword in keywords ])
+
         if not self.options.time_iso:
             time_format = '%x %X'
         else:
