@@ -1,19 +1,20 @@
-This is a fork of catfish 0.4 (https://launchpad.net/catfish-search/0.4). I forked 0.4 instead
-of 0.6 simply because I don't like the way 0.6 looks (due to GTK3?). I've changed several
+[This](https://github.com/mspacek/catfish-0.4) is a fork of [catfish 0.4]
+(https://launchpad.net/catfish-search/0.4). I forked 0.4 instead of 0.6 simply because I don't
+like the way 0.6 looks (due to GTK3?).
+
+I've turned catfish into just a fairly simple GUI for "locate". I've changed several other
 things to my own liking. Maybe you'll like them too, or use them as a guide to make your own
 changes:
 
+* remove all search methods other than "locate"
+* optionally intersect (AND) all search terms instead of ORing them
+* speed up search by removing word suggestions
 * change default search folder
 * change the column order
 * increase window size
-* speed up search by disabling word suggestions
 * disable regexps to allow limiting "locate" command to selected folder
 * speed up search by limiting "locate" command to selected folder
 * use ISO time format, and show local time instead of UTC
-
-In testing, I'm only really interested in how it performs while using "locate". I like to
-think of this as just a GUI for "locate". I may or may not have broken any or all of the other
-search methods.
 
 Martin Spacek <git@mspacek.mm.st>
 
