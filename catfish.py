@@ -222,7 +222,6 @@ class shell_query:
         command += ' ' + keywords
         # print out query command:
         print command
-        self.command = command
         self.process = subprocess.Popen(command, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, shell=True)
         return self.process.stdout
@@ -777,6 +776,8 @@ class catfish:
         (keywords, folder, intersect, matchcase, hidden, limit, start_date, end_date,
          type_families, custom_mime, custom_extensions) = self.get_search_settings()
 
+        self.window_search.set_title('%s' % keywords)
+
         if method == 'locate':
             #keywords = keywords.replace('*', ' ') # ignore wildcards
             # find any words in quotes, from http://stackoverflow.com/a/9519934/2020363:
@@ -892,7 +893,6 @@ class catfish:
         listmodel.set_sort_func(4, self.compare_dates, None)
 
         self.window_search.get_window().set_cursor(None)
-        self.window_search.set_title('%s' % query.command)
         self.keywords = keywords
         self.spinner.hide()
         self.find_in_progress = False
