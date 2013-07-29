@@ -239,7 +239,7 @@ class catfish:
 
         # Parse command line options
         parser = optparse.OptionParser(usage='usage: ' + app_name + ' [options] keywords',
-            version=app_name + ' v' + app_version)
+                                       version=app_name + ' v' + app_version)
         parser.add_option('', '--large-icons', action='store_true', dest='icons_large',
                           help='Use large icons')
         parser.add_option('', '--thumbnails', action='store_true', dest='thumbnails',
