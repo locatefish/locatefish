@@ -6,12 +6,13 @@
     <property name="border_width">5</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
-    <property name="icon_name">locatefish</property>
+    <property name="icon">locatefish.svg</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Locatefish</property>
-    <property name="version">0.4.0.3</property>
-    <property name="copyright" translatable="yes">Copyright 2007-2012 Christian Dywan &lt;christian@twotoasts.de&gt;</property>
-    <property name="comments" translatable="yes">Locatefish is a fork of catfish, and is a simple GUI for locate.</property>
+    <property name="version">0.1</property>
+    <property name="copyright" translatable="yes">Copyright 2007-2012 Christian Dywan &lt;christian@twotoasts.de&gt;
+Copyright 2013 Martin Spacek &lt;git@mspacek.mm.st&gt;</property>
+    <property name="comments" translatable="yes">Locatefish is a simple GUI for locate, forked from catfish-0.4</property>
     <property name="website">https://github.com/locatefish</property>
     <property name="license" translatable="yes">Copyright (C) 2007-2008 Christian Dywan &lt;christian@twotoasts.de&gt;
 
@@ -43,7 +44,7 @@ uk: Олександр
 zh_TW: Walter Cheuk &lt;wwycheuk@gmail.com&gt;
 </property>
     <property name="artists">Nancy Runge &lt;nancy@twotoasts.de&gt;</property>
-    <property name="logo_icon_name">locatefish</property>
+    <property name="logo">locatefish.svg</property>
     <property name="license_type">gpl-2-0</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="aboutdialog_vbox1">
@@ -775,7 +776,7 @@ This requires sudo (admin) rights.</property>
     <property name="window_position">center</property>
     <property name="default_width">1500</property>
     <property name="default_height">500</property>
-    <property name="icon_name">locatefish</property>
+    <property name="icon">locatefish.svg</property>
     <signal name="destroy" handler="on_window_search_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
