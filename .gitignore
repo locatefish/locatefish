@@ -1,4 +1,4 @@
-catfish
+locatefish
 deb/DEBIAN/control
 *.pyc
 *.mo
