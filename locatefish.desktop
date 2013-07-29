@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Locatefish File Search
+Name=Locatefish
 Comment=File search
 Comment[de]=Dateisuche
 Comment[es]=Buscador de archivos
@@ -10,6 +10,6 @@ Comment[fr]=Recherche de fichiers
 Comment[ru]=Поиск файлов
 Categories=GTK;Utility;Filesystem;
 Exec=locatefish
-Icon=locatefish
+Icon=/usr/local/share/icons/hicolor/scalable/apps/locatefish.svg
 Terminal=false
 StartupNotify=true

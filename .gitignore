@@ -3,4 +3,3 @@ deb/DEBIAN/control
 *.pyc
 *.mo
 Makefile
-
