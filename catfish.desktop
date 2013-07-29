@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Catfish File Search
+Name=Locatefish File Search
 Comment=File search
 Comment[de]=Dateisuche
 Comment[es]=Buscador de archivos
@@ -9,7 +9,7 @@ Comment[fi]=Etsi tiedostoja
 Comment[fr]=Recherche de fichiers
 Comment[ru]=Поиск файлов
 Categories=GTK;Utility;Filesystem;
-Exec=catfish
-Icon=catfish
+Exec=locatefish
+Icon=locatefish
 Terminal=false
 StartupNotify=true

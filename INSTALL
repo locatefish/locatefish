@@ -1,16 +1,16 @@
 1. Unpack the archive.
 
-2. To build catfish run 
+2. To build locatefish run
       ./configure
       make
 
-3. To install catfish run either
+3. To install locatefish run either
       (sudo) make install
    or
       (sudo) checkinstall
 
 4. For a list of command line options run
-      catfish --help
+      locatefish --help
 
-5. To create a distributable package of catfish run
+5. To create a distributable package of locatefish run
       make deb

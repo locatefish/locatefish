@@ -27,8 +27,8 @@ except ImportError, msg:
     print 'Error: The required module %s is missing.' % str(msg).split()[-1]
     sys.exit(1)
 
-app_name = 'catfish'
-app_version = '0.4.0.3'
+app_name = 'locatefish'
+app_version = '0.1'
 
 _ = gettext.gettext # i18n shortcut
 
@@ -81,7 +81,7 @@ class IntersectionError(ValueError):
     pass
     
 
-class Filter:
+class Filter(object):
     def __init__(self, intersect, matchcase, hidden, start_date, end_date,
                  time_format, type_families, custom_mime, custom_extensions):
         self.intersect = intersect # intersect search terms
@@ -197,7 +197,7 @@ class Filter:
         return file_type
 
 
-class shell_query:
+class shell_query(object):
     def __init__(self, method, method_args):
         self.err = ''
         self.method = method
@@ -232,7 +232,7 @@ class shell_query:
         return self.err or self.process.poll()
 
 
-class catfish:
+class Locatefish(object):
     def __init__(self):
         """Create the main window."""
         self.open_wrapper = 'xdg-open'
@@ -395,7 +395,7 @@ class catfish:
 
         # Retrieve significant widgets
         self.window_search = self.builder.get_object('window_search')
-        self.window_search.set_wmclass ("catfish", "catfish")
+        self.window_search.set_wmclass ("locatefish", "locatefish")
 
         self.toolbar = self.builder.get_object('toolbar')
         context = self.toolbar.get_style_context()
@@ -1298,5 +1298,5 @@ class catfish:
             self.find_in_progress = False
 
 
-catfish()
+Locatefish()
 Gtk.main()

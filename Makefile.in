@@ -1,4 +1,4 @@
-APPNAME=catfish
+APPNAME=locatefish
 PREFIX=@prefix@
 PYTHON=`which python`
 LANGUAGE_FILES=$(patsubst po/%.po, locale/%/LC_MESSAGES/$(APPNAME).mo, $(wildcard po/*.po))

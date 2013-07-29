@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPNAME=catfish
+APPNAME=locatefish
 
 if [ -e $APPNAME.pyc ]
     then python $APPNAME.pyc "$@"

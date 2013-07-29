@@ -1,8 +1,8 @@
-[This](https://github.com/mspacek/catfish-0.4) is a fork of [catfish 0.4]
+[locatefish](https://github.com/locatefish) is a fork of [catfish 0.4]
 (https://launchpad.net/catfish-search/0.4). I forked 0.4 instead of 0.6 simply because I don't
-like the way 0.6 looks (due to GTK3?).
+like the way 0.6 looks.
 
-I've turned catfish into just a fairly simple GUI for "locate". I've changed several other
+I've made this into just a fairly simple GUI for "locate". I've changed several other
 things to my own liking. Maybe you'll like them too, or use them as a guide to make your own
 changes:
 
