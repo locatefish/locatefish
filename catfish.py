@@ -227,6 +227,8 @@ class shell_query:
         return self.process.stdout
         
     def status(self):
+        """From locate manual: if no match was found or a fatal error was encountered,
+        locate exits with status 1"""
         return self.err or self.process.poll()
 
 
@@ -876,12 +878,12 @@ class catfish:
                 yield True
             self.treeview_files.set_model(listmodel)
             if len(listmodel) == 0:
-                if query.status():
-                    status_icon = Gtk.STOCK_CANCEL
-                    messages.append([_('Fatal error, search was aborted.'), None])
-                else:
-                    status_icon = Gtk.STOCK_INFO
-                    messages.append([_('No files were found.'), None])
+                #if query.status():
+                #    status_icon = Gtk.STOCK_CANCEL
+                #    messages.append([_('Fatal error, search was aborted.'), None])
+                #else:
+                status_icon = Gtk.STOCK_INFO
+                messages.append([_('No files were found.'), None])
                 status = _('No files found.')
             else:
                 status = _('%s files found.') % str(len(listmodel))
