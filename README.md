@@ -1,18 +1,18 @@
 [locatefish](https://github.com/locatefish) is a simple GUI for "locate", forked from [catfish
 0.4] (https://launchpad.net/catfish-search/0.4). I forked 0.4 instead of 0.6 simply because I
-don't like the way 0.6 looks.
+prefer the way it looks.
 
 Besides limiting it to "locate", I've changed several other things to my own liking. Maybe
 you'll like them too, or use them as a guide to make your own changes:
 
 * remove all search methods other than "locate"
-* optionally intersect (AND) all search terms instead of ORing them
+* optionally intersect (AND) results from search terms instead of taking their union (OR)
 * speed up search by removing word suggestions
+* disable regexps to allow limiting "locate" command to selected folder
+* speed up search by limiting "locate" command to selected folder
 * change default search folder
 * change the column order
 * increase window size
-* disable regexps to allow limiting "locate" command to selected folder
-* speed up search by limiting "locate" command to selected folder
 * use ISO time format, and show local time instead of UTC
 
 Martin Spacek <git@mspacek.mm.st>
