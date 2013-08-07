@@ -1,3 +1,19 @@
+locatefish:
+
+v0.1:
+ * Fork catfish 0.4.0.3
+ * Remove all search methods other than "locate"
+ * Optionally intersect (AND) results from search terms instead of taking their union (OR)
+ * Speed up search by removing word suggestions
+ * Disable regexps to allow limiting "locate" command to selected folder
+ * Speed up search by limiting "locate" command to selected folder
+ * Change default search folder
+ * Change the column order
+ * Increase window size
+ * Use ISO time format, show local time instead of UTC
+
+---------
+
 v0.4.0.3:
  + Added Greek translation.
  + Added Basque translation.
