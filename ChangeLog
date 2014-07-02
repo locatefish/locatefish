@@ -1,5 +1,8 @@
 locatefish:
 
+v0.1.1:
+ * Fix ImportError in newer versions of python-gobject (?)
+
 v0.1:
  * Fork catfish 0.4.0.3
  * Remove all search methods other than "locate"

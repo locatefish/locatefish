@@ -21,14 +21,15 @@ try:
 
     import locale, gettext
     from gi.repository import GObject, Gtk, Gdk, GdkPixbuf, Pango
-    from gi._glib import GError
+    from gi._gi import _glib
+    from _glib import GError
 
 except ImportError, msg:
     print 'Error: The required module %s is missing.' % str(msg).split()[-1]
     sys.exit(1)
 
 app_name = 'locatefish'
-app_version = '0.1'
+app_version = '0.1.1'
 
 _ = gettext.gettext # i18n shortcut
 

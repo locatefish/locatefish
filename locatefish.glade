@@ -9,7 +9,7 @@
     <property name="icon">locatefish.svg</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Locatefish</property>
-    <property name="version">0.1</property>
+    <property name="version">0.1.1</property>
     <property name="copyright" translatable="yes">Copyright 2007-2012 Christian Dywan &lt;christian@twotoasts.de&gt;
 Copyright 2013 Martin Spacek &lt;git@mspacek.mm.st&gt;</property>
     <property name="comments" translatable="yes">Locatefish is a simple GUI for locate, forked from catfish-0.4</property>
