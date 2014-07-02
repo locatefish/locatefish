@@ -1,6 +1,7 @@
 TODO:
+    * save selected folder across sessions (currently defaults to ~/papers)
+    * save window size across sessions
     * drag and drop of filenames
-    * save folder and window size across sessions
     * fix popup menu not being shown on first click
 
 DONE:
